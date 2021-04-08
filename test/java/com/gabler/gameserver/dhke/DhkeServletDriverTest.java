@@ -10,7 +10,8 @@ import java.math.BigInteger;
  */
 public class DhkeServletDriverTest {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        DhkeServletCertificateUtil.addSslToSystemProperties();
         final DhkeServlet servlet = new DhkeServlet(DhkeServletDriverTest::printKeyBytesAndId);
         servlet.start();
     }

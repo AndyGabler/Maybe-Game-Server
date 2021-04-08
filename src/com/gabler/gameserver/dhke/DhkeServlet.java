@@ -4,10 +4,12 @@ import com.gabler.server.ChatThread;
 import com.gabler.server.Server;
 import com.gabler.server.ServerConfiguration;
 import com.gabler.udpmanager.ResourceLock;
+import lombok.SneakyThrows;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import javax.net.ssl.SSLServerSocketFactory;
+import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -55,13 +57,16 @@ public class DhkeServlet extends ServerConfiguration {
 
     /**
      * Start the DHKE servlet.
-     *
-     * @throws IOException If server cannot start
      */
-    public void start() throws IOException {
-        final Server server = new Server(DHKE_SERVLET_PORT);
+    public void start() {
+        final Server server = new Server(DhkeServlet::createSslServerSocket, DHKE_SERVLET_PORT);
         server.setOperations(this);
         server.start();
+    }
+
+    @SneakyThrows
+    private static ServerSocket createSslServerSocket(int portNumber) {
+        return SSLServerSocketFactory.getDefault().createServerSocket(portNumber);
     }
 
     /**
@@ -123,7 +128,7 @@ public class DhkeServlet extends ServerConfiguration {
      * {@inheritDoc}
      */
     @Override
-    public void joinAction(PrintStream clientPrintStream) {
+    public void joinAction(PrintWriter clientPrintStream) {
         LOGGER.info("New client connected to DHKE server.");
     }
 
