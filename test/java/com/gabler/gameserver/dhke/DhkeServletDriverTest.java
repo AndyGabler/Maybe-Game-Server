@@ -1,6 +1,7 @@
 package com.gabler.gameserver.dhke;
 
-import java.io.IOException;
+import com.gabler.gameserver.ServletCertificateUtil;
+
 import java.math.BigInteger;
 
 /**
@@ -11,7 +12,7 @@ import java.math.BigInteger;
 public class DhkeServletDriverTest {
 
     public static void main(String[] args) {
-        DhkeServletCertificateUtil.addSslToSystemProperties();
+        ServletCertificateUtil.addSslToSystemProperties();
         final DhkeServlet servlet = new DhkeServlet(DhkeServletDriverTest::printKeyBytesAndId);
         servlet.start();
     }

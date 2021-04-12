@@ -64,6 +64,12 @@ public class DhkeServlet extends ServerConfiguration {
         server.start();
     }
 
+    /**
+     * Create SSL server socket.
+     *
+     * @param portNumber The port number
+     * @return The socket
+     */
     @SneakyThrows
     private static ServerSocket createSslServerSocket(int portNumber) {
         return SSLServerSocketFactory.getDefault().createServerSocket(portNumber);
@@ -106,6 +112,14 @@ public class DhkeServlet extends ServerConfiguration {
                 keyAndIdConsumer.accept(clientDhkeState.getKey(), keyId);
             }
         });
+    }
+
+    /**
+     * Terminate the servlet.
+     */
+    public void terminate() {
+        LOGGER.info("Terminating DHKE Server.");
+        server.terminate();
     }
 
     /**
