@@ -12,7 +12,9 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,8 +84,9 @@ public class AuthenticationServlet extends ServerConfiguration {
             }
 
             if (authenticated) {
-                final String sessionSecret = generateSession();
-                clientAccess.sendMessage("SESSION " + sessionSecret, null);
+                final Session session = generateSession();
+                final String message = "SESSION " + session.getSecret() + " " + session.getId();
+                clientAccess.sendMessage(message, null);
             } else {
                 clientAccess.sendMessage("NOSESSION", null);
             }
@@ -114,11 +117,11 @@ public class AuthenticationServlet extends ServerConfiguration {
     }
 
     /**
-     * Upon successful authentication, generate a new session and return session secret reference.
+     * Upon successful authentication, generate a new session and return session.
      *
-     * @return Session secret reference
+     * @return Session generated
      */
-    private String generateSession() {
+    private Session generateSession() {
         final Session newSession = new Session();
 
         boolean uniqueSessionSecretFound = false;
@@ -128,15 +131,50 @@ public class AuthenticationServlet extends ServerConfiguration {
             uniqueSessionSecretFound = sessionManager.performRunInLock(sessions -> sessions.get(secret) == null);
 
             if (uniqueSessionSecretFound) {
-                sessionManager.performRunInLock(sessions -> {
-                    newSession.setSecret(secret);
-                    sessions.put(secret, newSession);
-                });
                 newSecret = secret;
             }
         }
 
-        return newSecret;
+        boolean uniqueIdFound = false;
+        String newId = null;
+        while (!uniqueIdFound) {
+            final String id = UUID.randomUUID().toString();
+            uniqueIdFound = sessionManager.performRunInLock(sessions -> {
+                // Return for inline interface, not this method
+                return sessionIdUnique(sessions.values(), id);
+            });
+
+            if (uniqueIdFound) {
+                newId = id;
+            }
+        }
+
+        final String sessionSecret = newSecret;
+        final String sessionId = newId;
+        sessionManager.performRunInLock(sessions -> {
+            newSession.setSecret(sessionSecret);
+            newSession.setId(sessionId);
+            sessions.put(sessionSecret, newSession);
+        });
+
+        return newSession;
+    }
+
+    /**
+     * Check that a given session id is unique amongst a list of more sessions.
+     *
+     * @param sessions The sessions
+     * @param id The id
+     * @return True if unique
+     */
+    private static boolean sessionIdUnique(Collection<Session> sessions, String id) {
+        for (Session session : sessions) {
+            if (session.getId().equalsIgnoreCase(id)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
