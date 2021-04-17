@@ -30,7 +30,7 @@ public class GameServer implements IUdpServerConfiguration {
     private static final Logger LOGGER = Logger.getLogger("GameServer");
 
     private static final int GAME_SERVER_PORT = 13350;
-    private static final int GAME_SERVER_THREAD_POOL_SIZE = 30;
+    private static final int GAME_SERVER_THREAD_POOL_SIZE = 1;
 
     private final ResourceLock<HashMap<String, Session>> sessionManager;
     private final Function<byte[], ClientRequest> byteToClientRequestTransformer;
@@ -145,7 +145,7 @@ public class GameServer implements IUdpServerConfiguration {
         }
 
         if (request.getSequenceNumber() > session.getLastRecordedSequenceNumber()) {
-            request.getInputCodes().forEach(inputCode -> engine.addInput(inputCode, session));
+            engine.addInputs(request.getInputCodes(), session);
             session.setLastRecordedSequenceNumber(request.getSequenceNumber());
         }
     }

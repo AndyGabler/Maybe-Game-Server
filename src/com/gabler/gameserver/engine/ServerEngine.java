@@ -3,9 +3,7 @@ package com.gabler.gameserver.engine;
 import com.gabler.game.model.server.GameState;
 import com.gabler.gameserver.auth.Session;
 
-import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -13,17 +11,11 @@ import java.util.function.Consumer;
  *
  * @author Andy Gabler
  */
-public class ServerEngine implements ActionListener {
+public class ServerEngine {
 
-    /**
-     * The delay a timer needs to fire 30 times a second
-     */
-    private static final double JAVA_TIMER_30FPS_DELAY = 30;
-
-    // TODO ticks and state version
     private final Consumer<GameState> gameStateCalculationCallback;
     private GameState gameState;
-    private final Timer timer;
+    private final ServerTimeManager timer;
 
     /**
      * Instantiate engine for the server.
@@ -32,26 +24,22 @@ public class ServerEngine implements ActionListener {
      */
     public ServerEngine(Consumer<GameState> aGameStateCalculationCallback) {
         gameStateCalculationCallback = aGameStateCalculationCallback;
-        timer = makeTimer(30, this); // TODO non-static or different frame rate?
-    }
-
-    /**
-     * Create a timer with a specified amount of ticks per second.
-     *
-     * @param tickRate The tick rate
-     * @param listener The listener the timer calls
-     * @return The timer
-     */
-    private static Timer makeTimer(int tickRate, ActionListener listener) {
-        return new Timer((int) Math.pow(JAVA_TIMER_30FPS_DELAY, 2) / tickRate, listener);
+        timer = new ServerTimeManager(this, 30); // TODO non-static or different frame rate?
     }
 
     /**
      * Perform an engine tick.
      */
-    private synchronized void tick() {
-        gameState.setVersion(gameState.getVersion() + 1);
+    public void tick() {
+        calculateNextGameState();
         gameStateCalculationCallback.accept(gameState);
+    }
+
+    /**
+     * Calculate the next game state.
+     */
+    private void calculateNextGameState() {
+        gameState.setVersion(gameState.getVersion() + 1);
     }
 
     /**
@@ -59,14 +47,15 @@ public class ServerEngine implements ActionListener {
      */
     public void start() {
         timer.start();
+        timer.startTimer();
     }
 
     /**
      * Add an input
-     * @param code The input code
+     * @param codes The input codes
      * @param session The session associated with the input
      */
-    public synchronized void addInput(String code, Session session) {
+    public void addInputs(List<String> codes, Session session) {
 
     }
 
@@ -81,30 +70,20 @@ public class ServerEngine implements ActionListener {
      * Pause the engine.
      */
     public void pauseEngine() {
-        timer.stop();
+        timer.stopTimer();
     }
 
     /**
      * Resume the engine.
      */
     public void resumeEngine() {
-        timer.start();
+        timer.startTimer();
     }
 
     /**
      * Kill the engine.
      */
     public void kill() {
-        timer.stop();
-    }
-
-    /**
-     * Entry point for when the server's timer starts.
-     *
-     * @param event Unused timer event.
-     */
-    @Override
-    public void actionPerformed(ActionEvent event) {
-        tick();
+        timer.kill();
     }
 }
