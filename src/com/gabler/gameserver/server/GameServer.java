@@ -144,7 +144,7 @@ public class GameServer implements IUdpServerConfiguration {
             return;
         }
 
-        if (request.getSequenceNumber() > session.getLastRecordedSequenceNumber()) {
+        if (request.getSequenceNumber() > session.getLastRecordedSequenceNumber() && request.getInputCodes() != null) {
             engine.addInputs(request.getInputCodes(), session);
             session.setLastRecordedSequenceNumber(request.getSequenceNumber());
         }
