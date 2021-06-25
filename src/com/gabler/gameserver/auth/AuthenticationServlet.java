@@ -14,7 +14,9 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,7 +86,7 @@ public class AuthenticationServlet extends ServerConfiguration {
             }
 
             if (authenticated) {
-                final Session session = generateSession();
+                final Session session = retrieveOrCreateSession(username);
                 final String message = "SESSION " + session.getSecret() + " " + session.getId();
                 clientAccess.sendMessage(message, null);
             } else {
@@ -117,11 +119,29 @@ public class AuthenticationServlet extends ServerConfiguration {
     }
 
     /**
+     * Retrieve a user's current session or generate a new one.
+     *
+     * @param username The username on the session
+     * @return An either newly created session or the session the user was using before signing off
+     */
+    private Session retrieveOrCreateSession(String username) {
+        Session returnSession =  sessionManager.performRunInLock((Function<HashMap<String, Session>, List<Session>>) sessionMap -> new ArrayList<>(sessionMap.values()))
+                .stream()
+                .filter(session -> session.getUsername().equalsIgnoreCase(username))
+                .findFirst()
+                .orElseGet(() -> generateSession(username));
+
+        returnSession.setLastRecordedSequenceNumber(-1);
+        return returnSession;
+    }
+
+    /**
      * Upon successful authentication, generate a new session and return session.
      *
+     * @param username Username associated with the session
      * @return Session generated
      */
-    private Session generateSession() {
+    private Session generateSession(String username) {
         final Session newSession = new Session();
 
         boolean uniqueSessionSecretFound = false;
@@ -154,6 +174,7 @@ public class AuthenticationServlet extends ServerConfiguration {
         sessionManager.performRunInLock(sessions -> {
             newSession.setSecret(sessionSecret);
             newSession.setId(sessionId);
+            newSession.setUsername(username);
             sessions.put(sessionSecret, newSession);
         });
 

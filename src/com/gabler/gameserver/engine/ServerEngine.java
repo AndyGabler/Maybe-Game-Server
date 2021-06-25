@@ -57,7 +57,6 @@ public class ServerEngine {
 
         // TODO these engine steps will eventually need to be better managed
         gameState.getPlayers().forEach(player -> {
-            // TODO speed caps and such
             player.setSpeed(player.getSpeed() + player.getAcceleration());
 
             if (player.getSpeed() > ScalableBalanceConstants.MAX_PLAYER_SPEED) {

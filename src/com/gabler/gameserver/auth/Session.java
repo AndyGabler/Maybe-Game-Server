@@ -14,5 +14,6 @@ public class Session {
     private long lastRecordedSequenceNumber = -1;
     private String secret;
     private String id;
+    private String username;
     private ServerClientCallback connectionInfo;
 }
