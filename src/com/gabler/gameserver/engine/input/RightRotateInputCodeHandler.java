@@ -3,6 +3,7 @@ package com.gabler.gameserver.engine.input;
 import com.gabler.game.model.server.GameState;
 import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
+import com.gabler.gameserver.engine.ScalableBalanceConstants;
 
 /**
  * Handle command for when a client has requested that their player rotate to the right.
@@ -11,7 +12,7 @@ import com.gabler.gameserver.auth.Session;
  */
 public class RightRotateInputCodeHandler implements IInputCodeHandler {
 
-    private static double RADI_PER_SECOND = -0.5;
+    private static double RADI_PER_SECOND = ScalableBalanceConstants.ROTATIONS_PER_SECOND * -1;
 
     /**
      * {@inheritDoc}
