@@ -3,7 +3,7 @@ package com.gabler.gameserver.engine.input;
 import com.gabler.game.model.server.GameState;
 import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
-import com.gabler.gameserver.engine.ServerEngine;
+import com.gabler.gameserver.engine.ScalableBalanceConstants;
 
 /**
  * Handle command for when a client has requested that their player rotate to the left.
@@ -12,7 +12,7 @@ import com.gabler.gameserver.engine.ServerEngine;
  */
 public class LeftRotateInputCodeHandler implements IInputCodeHandler {
 
-    private static double RADI_PER_SECOND = 0.5;
+    private static double RADI_PER_SECOND = ScalableBalanceConstants.ROTATIONS_PER_SECOND;
 
     /**
      * {@inheritDoc}
@@ -44,6 +44,6 @@ public class LeftRotateInputCodeHandler implements IInputCodeHandler {
      * @return The rotational velocity
      */
     static double rotationalVelocity(double radiPerSecond) {
-        return (radiPerSecond / (double) ServerEngine.DEFAULT_TPS) * 2 * Math.PI;
+        return (radiPerSecond / (double) ScalableBalanceConstants.DEFAULT_TPS) * 2 * Math.PI;
     }
 }

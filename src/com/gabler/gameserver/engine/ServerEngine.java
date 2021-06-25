@@ -1,12 +1,11 @@
 package com.gabler.gameserver.engine;
 
+import com.gabler.game.model.server.BoundingBoxBorder;
 import com.gabler.game.model.server.GameState;
-import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
 import com.gabler.gameserver.engine.input.InputSetHandler;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -15,8 +14,6 @@ import java.util.function.Consumer;
  * @author Andy Gabler
  */
 public class ServerEngine {
-
-    public static final int DEFAULT_TPS = 30;
 
     private final Consumer<GameState> gameStateCalculationCallback;
     private GameState gameState;
@@ -31,7 +28,7 @@ public class ServerEngine {
      */
     public ServerEngine(Consumer<GameState> aGameStateCalculationCallback) {
         gameStateCalculationCallback = aGameStateCalculationCallback;
-        timer = new ServerTimeManager(this, 30); // TODO non-static or different frame rate?
+        timer = new ServerTimeManager(this, ScalableBalanceConstants.DEFAULT_TPS); // TODO non-static or different frame rate?
         inputManager = new ConcurrentInputManager();
         inputHandler = new InputSetHandler();
     }
@@ -63,16 +60,18 @@ public class ServerEngine {
             // TODO speed caps and such
             player.setSpeed(player.getSpeed() + player.getAcceleration());
 
-            if (player.getSpeed() > 10) {
-                player.setSpeed(10);
-            } else if (player.getSpeed() < -3) {
-                player.setSpeed(-3);
+            if (player.getSpeed() > ScalableBalanceConstants.MAX_PLAYER_SPEED) {
+                player.setSpeed(ScalableBalanceConstants.MAX_PLAYER_SPEED);
+            } else if (player.getSpeed() < ScalableBalanceConstants.MIN_PLAYER_SPEED) {
+                player.setSpeed(ScalableBalanceConstants.MIN_PLAYER_SPEED);
             }
 
             // TODO precompute some kind of table, math is expensive
             player.setAngle(player.getAngle() + player.getRotationalVelocity());
             player.setXVelocity((long) (Math.cos(player.getAngle()) * (double)player.getSpeed()));
             player.setYVelocity((long) (Math.sin(player.getAngle()) * (double)player.getSpeed()));
+
+            gameState.getBorder().adjustSpeedToNotCrossBorder(player);
 
             player.setX(player.getX() + player.getXVelocity());
             player.setY(player.getY() + player.getYVelocity());
@@ -107,6 +106,10 @@ public class ServerEngine {
      */
     public void calculateInitialGameState() {
         gameState = new GameState();
+        final BoundingBoxBorder border = new BoundingBoxBorder();
+        border.setMaxX(ScalableBalanceConstants.BORDER_X_COORDINATE);
+        border.setMaxY(ScalableBalanceConstants.BORDER_Y_COORDINATE);
+        gameState.setBorder(border);
     }
 
     /**
