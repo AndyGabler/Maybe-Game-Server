@@ -55,8 +55,11 @@ public class InputSetHandlerTest {
         final ClientInputSet inputSet = createSingleInputInputSet("INPUTCODE1", sessionWithoutPlayer);
         objectUnderTest.putInputSetOnGameState(inputSet, gameState);
 
-        Mockito.verify(handler1, Mockito.times(1)).handleInput(gameState, null, "INPUTCODE1", sessionWithoutPlayer);
-        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final ArrayList<String> inputCodesCopy = new ArrayList<>();
+        inputCodesCopy.add("INPUTCODE1");
+
+        Mockito.verify(handler1, Mockito.times(1)).handleInput(gameState, null, "INPUTCODE1", inputCodesCopy, sessionWithoutPlayer);
+        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -64,8 +67,11 @@ public class InputSetHandlerTest {
         final ClientInputSet inputSet = createSingleInputInputSet("INPUTCODE1", sessionWithPlayer);
         objectUnderTest.putInputSetOnGameState(inputSet, gameState);
 
-        Mockito.verify(handler1, Mockito.times(1)).handleInput(gameState, player, "INPUTCODE1", sessionWithPlayer);
-        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final ArrayList<String> inputCodesCopy = new ArrayList<>();
+        inputCodesCopy.add("INPUTCODE1");
+
+        Mockito.verify(handler1, Mockito.times(1)).handleInput(gameState, player, "INPUTCODE1", inputCodesCopy, sessionWithPlayer);
+        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -73,8 +79,11 @@ public class InputSetHandlerTest {
         final ClientInputSet inputSet = createSingleInputInputSet("ANOTHERINPUTCODE", sessionWithPlayer);
         objectUnderTest.putInputSetOnGameState(inputSet, gameState);
 
-        Mockito.verify(handler2, Mockito.times(1)).handleInput(gameState, player, "ANOTHERINPUTCODE", sessionWithPlayer);
-        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final ArrayList<String> inputCodesCopy = new ArrayList<>();
+        inputCodesCopy.add("ANOTHERINPUTCODE");
+
+        Mockito.verify(handler2, Mockito.times(1)).handleInput(gameState, player, "ANOTHERINPUTCODE", inputCodesCopy, sessionWithPlayer);
+        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -82,8 +91,11 @@ public class InputSetHandlerTest {
         final ClientInputSet inputSet = createSingleInputInputSet("ANOTHERINPUTCODE 43", sessionWithPlayer);
         objectUnderTest.putInputSetOnGameState(inputSet, gameState);
 
-        Mockito.verify(handler2, Mockito.times(1)).handleInput(gameState, player, "ANOTHERINPUTCODE 43", sessionWithPlayer);
-        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        final ArrayList<String> inputCodesCopy = new ArrayList<>();
+        inputCodesCopy.add("ANOTHERINPUTCODE 43");
+
+        Mockito.verify(handler2, Mockito.times(1)).handleInput(gameState, player, "ANOTHERINPUTCODE 43", inputCodesCopy, sessionWithPlayer);
+        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -91,8 +103,8 @@ public class InputSetHandlerTest {
         final ClientInputSet inputSet = createSingleInputInputSet("INVALID-COMMAND", sessionWithPlayer);
         objectUnderTest.putInputSetOnGameState(inputSet, gameState);
 
-        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(handler1, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(handler2, Mockito.times(0)).handleInput(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     /**

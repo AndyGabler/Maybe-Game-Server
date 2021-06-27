@@ -5,6 +5,7 @@ import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
 import com.gabler.gameserver.engine.ClientInputSet;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -46,6 +47,9 @@ public class InputSetHandler {
         handler.put("RTHRUST", new ReverseThrustInputCodeHandler());
         handler.put("LROTATE", new LeftRotateInputCodeHandler());
         handler.put("RROTATE", new RightRotateInputCodeHandler());
+        handler.put("BOOST", new BoostInputCodeHandler());
+        handler.put("BOOSTEND", new BoostInputCodeHandler());
+        handler.put("BREAK", new BreakInputCodeHandler());
         return handler;
     }
 
@@ -59,6 +63,7 @@ public class InputSetHandler {
         final Session session = inputSet.getSession();
         final Player player = playerForSession(gameState, session.getId());
 
+        final ArrayList<String> allInputCodes = new ArrayList<>(inputSet.getInputCodes());
         inputSet.getInputCodes().forEach(input -> {
             if (input != null && input.length() > 0) {
                 final String noParameterInput = inputCodeForFullInput(input);
@@ -66,7 +71,7 @@ public class InputSetHandler {
 
                 if (handler != null) {
                     if (!handler.requiresPlayer() || player != null) {
-                        handler.handleInput(gameState, player, input, session);
+                        handler.handleInput(gameState, player, input, allInputCodes, session);
                     }
                 }
             }

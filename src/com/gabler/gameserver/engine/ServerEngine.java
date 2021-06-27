@@ -46,10 +46,13 @@ public class ServerEngine {
      */
     private void calculateNextGameState() {
 
+        // Players lose all acceleration and rotational velocity until it is next requested
         gameState.getPlayers().forEach(player -> {
             player.setRotationalVelocity(0);
+            player.setAcceleration(0);
         });
 
+        // Handle player inputs
         final List<ClientInputSet> inputs = inputManager.getUnhandledCodes();
         inputs.forEach(input -> {
             inputHandler.putInputSetOnGameState(input, gameState);
@@ -57,21 +60,34 @@ public class ServerEngine {
 
         // TODO these engine steps will eventually need to be better managed
         gameState.getPlayers().forEach(player -> {
+
+            // Adjust the max speed and acceleration based on if boost is being used
+            long maxSpeed = ScalableBalanceConstants.MAX_PLAYER_SPEED;
+            if (player.isBoosting() && player.getSpeed() > 0) {
+                maxSpeed = ScalableBalanceConstants.BOOSTING_MAX_PLAYER_SPEED;
+                player.setAcceleration(ScalableBalanceConstants.BOOSTING_PLAYER_ACCELERATION);
+            }
+
+            // Add acceleration to the character speed
             player.setSpeed(player.getSpeed() + player.getAcceleration());
 
-            if (player.getSpeed() > ScalableBalanceConstants.MAX_PLAYER_SPEED) {
-                player.setSpeed(ScalableBalanceConstants.MAX_PLAYER_SPEED);
+            // Set a speed cap on the player
+            if (player.getSpeed() > maxSpeed) {
+                player.setSpeed(maxSpeed);
             } else if (player.getSpeed() < ScalableBalanceConstants.MIN_PLAYER_SPEED) {
                 player.setSpeed(ScalableBalanceConstants.MIN_PLAYER_SPEED);
             }
 
             // TODO precompute some kind of table, math is expensive
+            // Assign velocities based on the speed and angle
             player.setAngle(player.getAngle() + player.getRotationalVelocity());
             player.setXVelocity((long) (Math.cos(player.getAngle()) * (double)player.getSpeed()));
             player.setYVelocity((long) (Math.sin(player.getAngle()) * (double)player.getSpeed()));
 
+            // Make sure noone crosses the border by adjusting velocities
             gameState.getBorder().adjustSpeedToNotCrossBorder(player);
 
+            // Slap the velocity onto the player
             player.setX(player.getX() + player.getXVelocity());
             player.setY(player.getY() + player.getYVelocity());
         });

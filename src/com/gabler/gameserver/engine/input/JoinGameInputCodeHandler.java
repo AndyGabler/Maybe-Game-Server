@@ -4,6 +4,8 @@ import com.gabler.game.model.server.GameState;
 import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
 
+import java.util.List;
+
 /**
  * Input handler for the input to join the game.
  *
@@ -15,7 +17,7 @@ public class JoinGameInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, Session session) {
+    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputCodes, Session session) {
         // Revalidate that there is no player (incase client multiple JOINGAME commands appeared in one client request)
         if (player == null && playerStillDoesNotExist(state, session.getId())) {
             final Player newPlayer = new Player();

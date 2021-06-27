@@ -11,18 +11,29 @@ public class ScalableBalanceConstants {
     /*
      * When player is rotating, this represents the amount of complete rotations that may occur each second.
      */
-    public static final double ROTATIONS_PER_SECOND = 0.5;
+    public static final double ROTATIONS_PER_SECOND = 0.75;
 
     /*
      * When player is thrusting, these are the accelerations.
      */
     public static final long REVERSE_THRUST_ACCELERATION = -1;
-    public static final long THRUST_ACCELERATION = 4;
+    public static final long THRUST_ACCELERATION = 1;
+
+    /*
+     * Acceleration for when breaking.
+     */
+    public static final long BREAKING_THRUSTER_ACCELERATION = -1;
+
+    /*
+     * Constants for modifiers when boosting.
+     */
+    public static final long BOOSTING_MAX_PLAYER_SPEED = 38;
+    public static final long BOOSTING_PLAYER_ACCELERATION = 3;
 
     /*
      * Speed limits for players.
      */
-    public static final long MAX_PLAYER_SPEED = 14;
+    public static final long MAX_PLAYER_SPEED = 18;
     public static final long MIN_PLAYER_SPEED = -7;
 
     /*

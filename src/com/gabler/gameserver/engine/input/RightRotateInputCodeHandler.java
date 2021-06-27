@@ -5,6 +5,8 @@ import com.gabler.game.model.server.Player;
 import com.gabler.gameserver.auth.Session;
 import com.gabler.gameserver.engine.ScalableBalanceConstants;
 
+import java.util.List;
+
 /**
  * Handle command for when a client has requested that their player rotate to the right.
  *
@@ -18,7 +20,11 @@ public class RightRotateInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, Session session) {
+    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputCodes, Session session) {
+        if (player.isBoosting()) {
+            return;
+        }
+
         // TODO assumption below does not hold if external forces other than input control velocity
         // If player already has rotational velocity, this means the opposite rotational direction has also been input
         if (player.getRotationalVelocity() == 0) {
