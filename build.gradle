@@ -43,7 +43,7 @@ test {
     useJUnitPlatform()
 }
 
-mainClassName = 'com.gabler.gameserver.app.AppStart'
+mainClassName = 'com.andronikus.gameserver.app.AppStart'
 
 applicationName = 'Game Server'
 version = "0.1.0"
