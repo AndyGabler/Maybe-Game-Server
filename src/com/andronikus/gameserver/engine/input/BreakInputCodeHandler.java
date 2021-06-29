@@ -32,4 +32,12 @@ public class BreakInputCodeHandler implements IInputCodeHandler {
     public boolean requiresPlayer() {
         return true;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean playerMustBeAlive() {
+        return false;
+    }
 }

@@ -52,4 +52,12 @@ public class LeftRotateInputCodeHandler implements IInputCodeHandler {
     static double rotationalVelocity(double radiPerSecond) {
         return (radiPerSecond / (double) ScalableBalanceConstants.DEFAULT_TPS) * 2 * Math.PI;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean playerMustBeAlive() {
+        return false;
+    }
 }

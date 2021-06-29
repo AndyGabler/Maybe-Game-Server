@@ -46,4 +46,10 @@ public class ScalableBalanceConstants {
      * Engine TPS.
      */
     public static final int DEFAULT_TPS = 30;
+
+    /*
+     * Player health numbers.
+     */
+    public static final int PLAYER_HEALTH = 100;
+    public static final int PLAYER_SHIELD_COUNT = 4;
 }

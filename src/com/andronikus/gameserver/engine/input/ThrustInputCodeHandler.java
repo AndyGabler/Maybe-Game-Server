@@ -29,4 +29,12 @@ public class ThrustInputCodeHandler implements IInputCodeHandler {
     public boolean requiresPlayer() {
         return true;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean playerMustBeAlive() {
+        return false;
+    }
 }

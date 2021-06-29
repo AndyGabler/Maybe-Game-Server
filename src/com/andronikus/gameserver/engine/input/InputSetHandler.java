@@ -70,7 +70,8 @@ public class InputSetHandler {
                 final IInputCodeHandler handler = handlerMap.get(noParameterInput);
 
                 if (handler != null) {
-                    if (!handler.requiresPlayer() || player != null) {
+                    if (!handler.requiresPlayer() ||
+                        (player != null && (!handler.playerMustBeAlive()) || !player.isDead())) {
                         handler.handleInput(gameState, player, input, allInputCodes, session);
                     }
                 }

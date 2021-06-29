@@ -90,6 +90,10 @@ public class ServerEngine {
             // Slap the velocity onto the player
             player.setX(player.getX() + player.getXVelocity());
             player.setY(player.getY() + player.getYVelocity());
+            
+            if (player.getHealth() <= 0) {
+                player.setDead(true);
+            }
         });
 
         gameState.setVersion(gameState.getVersion() + 1);

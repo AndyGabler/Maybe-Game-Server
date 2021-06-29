@@ -49,4 +49,12 @@ public class JoinGameInputCodeHandler implements IInputCodeHandler {
             player -> player.getSessionId().equalsIgnoreCase(sessionId)
         ).findFirst().isEmpty();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean playerMustBeAlive() {
+        return true;
+    }
 }

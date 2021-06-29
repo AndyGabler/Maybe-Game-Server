@@ -30,4 +30,11 @@ public interface IInputCodeHandler {
      * @return True if player is required
      */
     boolean requiresPlayer();
+
+    /**
+     * Whether or not the hanlder requires the player to be alive in order to operate.
+     *
+     * @return True if player must be alive to use this input
+     */
+    boolean playerMustBeAlive();
 }

@@ -1,5 +1,6 @@
 package com.andronikus.game.model.server;
 
+import com.andronikus.gameserver.engine.ScalableBalanceConstants;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -30,4 +31,8 @@ public class Player implements Serializable {
 
     private double angle = 0;
     private double rotationalVelocity = 0;
+
+    private int health = ScalableBalanceConstants.PLAYER_HEALTH;
+    private int shieldCount = ScalableBalanceConstants.PLAYER_SHIELD_COUNT;
+    private boolean dead = false;
 }
