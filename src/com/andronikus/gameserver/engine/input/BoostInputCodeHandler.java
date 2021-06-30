@@ -21,7 +21,7 @@ public class BoostInputCodeHandler implements IInputCodeHandler {
         if (allInputs.stream().anyMatch(input -> input.equals("BOOSTEND"))) {
             player.setBoosting(false);
         } else {
-            player.setBoosting(player.getSpeed() > 0);
+            player.setBoosting(player.getSpeed() > 0 && player.getBoostingCharge() > 0);
         }
     }
 

@@ -5,6 +5,7 @@ import com.andronikus.gameserver.engine.collision.CollisionUtil;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.player.DamageUtil;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,10 +48,61 @@ public class ServerEngine {
      */
     private void calculateNextGameState() {
 
+        // Get rid of lasers if they are beyond the border and will not impact anything
+        gameState.getLasers().removeIf(laser ->
+            laser.getX() < -2000 || laser.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 2000 ||
+            laser.getY() < -2000 || laser.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 2000
+        );
+
+        // Before the player's inputs are processed, let's clip some wings and make they're not overclocking
         // Players lose all acceleration and rotational velocity until it is next requested
         gameState.getPlayers().forEach(player -> {
             player.setRotationalVelocity(0);
             player.setAcceleration(0);
+
+            player.setShieldLostThisTick(false);
+            // If player is boosting, make sure they can't do this indefinitely
+            if (player.isBoosting()) {
+                player.setBoostingCharge(player.getBoostingCharge() - ScalableBalanceConstants.BOOSTING_BURN_RATE);
+                player.setBoostingRecharge(player.getBoostingCharge());
+
+                if (player.getBoostingCharge() <= 0) {
+                    player.setBoostingCharge(0);
+                    player.setBoosting(false);
+                }
+            } else {
+                // Okay, player is not boosting, let's give them some boost back
+                player.setBoostingRecharge(player.getBoostingRecharge() + ScalableBalanceConstants.BOOSTING_RECHARGE_RATE);
+
+                if (player.getBoostingRecharge() > ScalableBalanceConstants.BOOSTING_CHARGE) {
+                    player.setBoostingCharge(ScalableBalanceConstants.BOOSTING_CHARGE);
+                    player.setBoostingRecharge(ScalableBalanceConstants.BOOSTING_CHARGE);
+                }
+            }
+
+            // Give player their shields back
+            if (player.getShieldCount() < ScalableBalanceConstants.PLAYER_SHIELD_COUNT) {
+                player.setShieldRecharge(player.getShieldRecharge() + ScalableBalanceConstants.SHIELD_RECHARGE_RATE);
+                if (player.getShieldRecharge() >= ScalableBalanceConstants.SHIELD_RECHARGE_CAP) {
+                    player.setShieldRecharge(0);
+                    player.setShieldCount(player.getShieldCount() + 1);
+                }
+            } else {
+                // Set to 0 on the off-chance powerups that give this back is implemented
+                player.setShieldRecharge(0);
+            }
+
+            // Give player their lasers back
+            if (player.getLaserCharges() < ScalableBalanceConstants.PLAYER_LASER_CHARGES) {
+                player.setLaserRecharge(player.getLaserRecharge() + ScalableBalanceConstants.PLAYER_LASER_RECHARGE_RATE);
+                if (player.getLaserRecharge() >= ScalableBalanceConstants.PLAYER_LASER_RECHARGE_THRESHOLD) {
+                    player.setLaserRecharge(0);
+                    player.setLaserCharges(player.getLaserCharges() + 1);
+                }
+            } else {
+                // Set to 0 on the off-chance powerups that give this back is implemented
+                player.setLaserRecharge(0);
+            }
         });
 
         // Handle player inputs
@@ -113,7 +165,11 @@ public class ServerEngine {
                         )) {
                             laser.setXVelocity(0);
                             laser.setYVelocity(0);
-                            player.setHealth(player.getHealth() - 23);
+
+                            boolean shieldDamage = DamageUtil.damagePlayer(player, ScalableBalanceConstants.LASER_DAMAGE, false);
+                            if (shieldDamage) {
+                                player.setShieldLostThisTick(true);
+                            }
                         }
                     }
                 });

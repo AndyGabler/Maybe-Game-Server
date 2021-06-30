@@ -29,6 +29,10 @@ public class ScalableBalanceConstants {
      */
     public static final long BOOSTING_MAX_PLAYER_SPEED = 38;
     public static final long BOOSTING_PLAYER_ACCELERATION = 3;
+    public static final int BOOSTING_CHARGE = 200;
+    public static final int BOOSTING_BURN_RATE = 5;
+    public static final int BOOSTING_RECHARGE_RATE = 1;
+
 
     /*
      * Speed limits for players.
@@ -57,6 +61,15 @@ public class ScalableBalanceConstants {
      */
     public static final int PLAYER_HEALTH = 100;
     public static final int PLAYER_SHIELD_COUNT = 4;
+    public static final int SHIELD_RECHARGE_CAP = 1000;
+    public static final int SHIELD_RECHARGE_RATE = 3;
+
+    /*
+     * Throttles on how many lasers a player can fire at a time.
+     */
+    public static final int PLAYER_LASER_CHARGES = 8;
+    public static final int PLAYER_LASER_RECHARGE_THRESHOLD = 750;
+    public static final int PLAYER_LASER_RECHARGE_RATE = 26;
 
     /*
      * Speed of a laser as it leaves a ship.
@@ -68,4 +81,9 @@ public class ScalableBalanceConstants {
      */
     public static final int LASER_WIDTH = 48;
     public static final int LASER_HEIGHT = 32;
+
+    /*
+     * Laser damage.
+     */
+    public static final int LASER_DAMAGE = 23;
 }

@@ -28,11 +28,19 @@ public class Player implements Serializable {
     private long acceleration = 0;
 
     private boolean boosting = false;
+    private int boostingCharge = ScalableBalanceConstants.BOOSTING_CHARGE;
+    private int boostingRecharge = ScalableBalanceConstants.BOOSTING_CHARGE;
 
     private double angle = 0;
     private double rotationalVelocity = 0;
 
     private int health = ScalableBalanceConstants.PLAYER_HEALTH;
-    private int shieldCount = ScalableBalanceConstants.PLAYER_SHIELD_COUNT;
     private boolean dead = false;
+
+    private int shieldCount = ScalableBalanceConstants.PLAYER_SHIELD_COUNT;
+    private int shieldRecharge = 0;
+    private boolean shieldLostThisTick = false;
+
+    private int laserCharges = ScalableBalanceConstants.PLAYER_LASER_CHARGES;
+    private int laserRecharge = 0;
 }

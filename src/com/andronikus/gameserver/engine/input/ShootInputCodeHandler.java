@@ -20,6 +20,10 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
      */
     @Override
     public void handleInput(GameState state, Player player, String inputCode, List<String> allInputs, Session session) {
+        if (player.isBoosting() || player.getLaserCharges() <= 0) {
+            return;
+        }
+
         final Laser laser = new Laser();
 
         laser.setX(player.getX());
@@ -34,6 +38,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
         laser.setId(id);
 
         state.getLasers().add(laser);
+        player.setLaserCharges(player.getLaserCharges() - 1);
     }
 
     /**
