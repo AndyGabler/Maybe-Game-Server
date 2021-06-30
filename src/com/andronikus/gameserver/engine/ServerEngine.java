@@ -1,6 +1,7 @@
 package com.andronikus.gameserver.engine;
 
 import com.andronikus.game.model.server.BoundingBoxBorder;
+import com.andronikus.gameserver.engine.collision.CollisionUtil;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.auth.Session;
@@ -59,6 +60,11 @@ public class ServerEngine {
         });
 
         // TODO these engine steps will eventually need to be better managed
+        gameState.getLasers().forEach(laser -> {
+            laser.setX(laser.getX() + laser.getXVelocity());
+            laser.setY(laser.getY() + laser.getYVelocity());
+        });
+
         gameState.getPlayers().forEach(player -> {
 
             // Adjust the max speed and acceleration based on if boost is being used
@@ -93,6 +99,24 @@ public class ServerEngine {
             
             if (player.getHealth() <= 0) {
                 player.setDead(true);
+            }
+        });
+
+        // Check for collisions
+        gameState.getPlayers().forEach(player -> {
+            if (!player.isDead()) {
+                gameState.getLasers().forEach(laser -> {
+                    if ((laser.getXVelocity() != 0 || laser.getYVelocity() != 0) && !laser.getLoyalty().equals(player.getSessionId())) {
+                        if (CollisionUtil.rectangularHitboxesCollide(
+                            laser.getX(), laser.getY(), ScalableBalanceConstants.LASER_WIDTH, ScalableBalanceConstants.LASER_HEIGHT, laser.getAngle(),
+                            player.getX(), player.getY(), ScalableBalanceConstants.PLAYER_SIZE, ScalableBalanceConstants.PLAYER_SIZE, player.getAngle()
+                        )) {
+                            laser.setXVelocity(0);
+                            laser.setYVelocity(0);
+                            player.setHealth(player.getHealth() - 23);
+                        }
+                    }
+                });
             }
         });
 

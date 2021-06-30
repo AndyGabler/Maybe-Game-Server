@@ -37,6 +37,11 @@ public class ScalableBalanceConstants {
     public static final long MIN_PLAYER_SPEED = -7;
 
     /*
+     * Size of the player.
+     */
+    public static final int PLAYER_SIZE = 64;
+
+    /*
      * Boundaries for the border on engine.
      */
     public static final long BORDER_X_COORDINATE = 13350;
@@ -52,4 +57,15 @@ public class ScalableBalanceConstants {
      */
     public static final int PLAYER_HEALTH = 100;
     public static final int PLAYER_SHIELD_COUNT = 4;
+
+    /*
+     * Speed of a laser as it leaves a ship.
+     */
+    public static final long LASER_SPEED = 59;
+
+    /*
+     * Laser sizes.
+     */
+    public static final int LASER_WIDTH = 48;
+    public static final int LASER_HEIGHT = 32;
 }

@@ -50,6 +50,7 @@ public class InputSetHandler {
         handler.put("BOOST", new BoostInputCodeHandler());
         handler.put("BOOSTEND", new BoostInputCodeHandler());
         handler.put("BREAK", new BreakInputCodeHandler());
+        handler.put("SHOOT", new ShootInputCodeHandler());
         return handler;
     }
 
