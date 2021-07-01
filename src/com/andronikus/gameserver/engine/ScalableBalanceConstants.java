@@ -31,7 +31,7 @@ public class ScalableBalanceConstants {
     public static final long BOOSTING_PLAYER_ACCELERATION = 3;
     public static final int BOOSTING_CHARGE = 200;
     public static final int BOOSTING_BURN_RATE = 5;
-    public static final int BOOSTING_RECHARGE_RATE = 1;
+    public static final int BOOSTING_RECHARGE_RATE = 2;
 
 
     /*
