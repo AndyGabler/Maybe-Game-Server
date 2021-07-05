@@ -43,4 +43,6 @@ public class Player implements Serializable {
 
     private int laserCharges = ScalableBalanceConstants.PLAYER_LASER_CHARGES;
     private int laserRecharge = 0;
+
+    private PlayerColor color = null;
 }

@@ -5,6 +5,7 @@ import com.andronikus.gameserver.engine.collision.CollisionUtil;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.player.ColorAssigner;
 import com.andronikus.gameserver.engine.player.DamageUtil;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class ServerEngine {
     private final ServerTimeManager timer;
     private final ConcurrentInputManager inputManager;
     private final InputSetHandler inputHandler;
+    private final ColorAssigner colorAssigner = new ColorAssigner();
 
     /**
      * Instantiate engine for the server.
@@ -118,6 +120,7 @@ public class ServerEngine {
         });
 
         gameState.getPlayers().forEach(player -> {
+            colorAssigner.assignPlayerColor(player);
 
             // Adjust the max speed and acceleration based on if boost is being used
             long maxSpeed = ScalableBalanceConstants.MAX_PLAYER_SPEED;
