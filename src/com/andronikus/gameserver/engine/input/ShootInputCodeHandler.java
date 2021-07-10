@@ -38,6 +38,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
         laser.setId(id);
 
         state.getLasers().add(laser);
+        state.getCollideables().add(laser);
         player.setLaserCharges(player.getLaserCharges() - 1);
     }
 

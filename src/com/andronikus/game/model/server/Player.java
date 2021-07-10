@@ -3,15 +3,13 @@ package com.andronikus.game.model.server;
 import com.andronikus.gameserver.engine.ScalableBalanceConstants;
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  * A player in the game.
  *
  * @author Andronikus
  */
 @Data
-public class Player implements Serializable {
+public class Player implements ICollideable {
 
     /**
      * Tie-back to the session with the server.
@@ -45,4 +43,44 @@ public class Player implements Serializable {
     private int laserRecharge = 0;
 
     private PlayerColor color = null;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBoxX() {
+        return x;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getBoxY() {
+        return y;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBoxWidth() {
+        return ScalableBalanceConstants.PLAYER_SIZE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBoxHeight() {
+        return ScalableBalanceConstants.PLAYER_SIZE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getTilt() {
+        return angle;
+    }
 }

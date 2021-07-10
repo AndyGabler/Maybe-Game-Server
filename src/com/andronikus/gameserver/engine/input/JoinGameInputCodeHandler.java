@@ -26,6 +26,7 @@ public class JoinGameInputCodeHandler implements IInputCodeHandler {
             newPlayer.setY(0);
             newPlayer.setSessionId(session.getId());
             state.getPlayers().add(newPlayer);
+            state.getCollideables().add(newPlayer);
         }
     }
 

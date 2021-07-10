@@ -1,13 +1,15 @@
 package com.andronikus.gameserver.engine;
 
 import com.andronikus.game.model.server.BoundingBoxBorder;
-import com.andronikus.gameserver.engine.collision.CollisionUtil;
+import com.andronikus.game.model.server.ICollideable;
+import com.andronikus.gameserver.engine.collision.CollisionHandler;
+import com.andronikus.gameserver.engine.collision.PlayerAndLaserCollisionHandler;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.auth.Session;
 import com.andronikus.gameserver.engine.player.ColorAssigner;
-import com.andronikus.gameserver.engine.player.DamageUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 public class ServerEngine {
 
     private final Consumer<GameState> gameStateCalculationCallback;
+    private volatile ArrayList<CollisionHandler> collisionHandlers = new ArrayList<>();
     private GameState gameState;
     private final ServerTimeManager timer;
     private final ConcurrentInputManager inputManager;
@@ -51,10 +54,16 @@ public class ServerEngine {
     private void calculateNextGameState() {
 
         // Get rid of lasers if they are beyond the border and will not impact anything
-        gameState.getLasers().removeIf(laser ->
-            laser.getX() < -2000 || laser.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 2000 ||
-            laser.getY() < -2000 || laser.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 2000
-        );
+        gameState.getLasers().removeIf(laser -> {
+            boolean willRemove = laser.getX() < -2000 || laser.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 2000 ||
+            laser.getY() < -2000 || laser.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 2000;
+
+            if (willRemove) {
+                gameState.getCollideables().remove(laser);
+            }
+
+            return willRemove;
+        });
 
         // Before the player's inputs are processed, let's clip some wings and make they're not overclocking
         // Players lose all acceleration and rotational velocity until it is next requested
@@ -158,26 +167,16 @@ public class ServerEngine {
         });
 
         // Check for collisions
-        gameState.getPlayers().forEach(player -> {
-            if (!player.isDead()) {
-                gameState.getLasers().forEach(laser -> {
-                    if ((laser.getXVelocity() != 0 || laser.getYVelocity() != 0) && !laser.getLoyalty().equals(player.getSessionId())) {
-                        if (CollisionUtil.rectangularHitboxesCollide(
-                            laser.getX(), laser.getY(), ScalableBalanceConstants.LASER_WIDTH, ScalableBalanceConstants.LASER_HEIGHT, laser.getAngle(),
-                            player.getX(), player.getY(), ScalableBalanceConstants.PLAYER_SIZE, ScalableBalanceConstants.PLAYER_SIZE, player.getAngle()
-                        )) {
-                            laser.setXVelocity(0);
-                            laser.setYVelocity(0);
+        final ArrayList<ICollideable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
+        final int collideablesSize = collideablesCopy.size();
+        for (int index = 0; index < collideablesSize - 1; index++) {
+            for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
+                final ICollideable collideable0 = collideablesCopy.get(index);
+                final ICollideable collideable1 = collideablesCopy.get(innerIndex);
 
-                            boolean shieldDamage = DamageUtil.damagePlayer(player, ScalableBalanceConstants.LASER_DAMAGE, false);
-                            if (shieldDamage) {
-                                player.setShieldLostThisTick(true);
-                            }
-                        }
-                    }
-                });
+                collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
             }
-        });
+        }
 
         gameState.setVersion(gameState.getVersion() + 1);
     }
@@ -186,6 +185,9 @@ public class ServerEngine {
      * Start the engine.
      */
     public void start() {
+        final ArrayList<CollisionHandler> collisionHandlers = new ArrayList<>();
+        collisionHandlers.add(new PlayerAndLaserCollisionHandler());
+        this.collisionHandlers = collisionHandlers;
         timer.start();
         timer.startTimer();
     }
