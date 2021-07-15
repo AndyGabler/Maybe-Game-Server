@@ -21,6 +21,7 @@ public class ReverseThrustInputCodeHandler implements IInputCodeHandler {
     public void handleInput(GameState state, Player player, String inputCode, List<String> allInputCodes, Session session) {
         player.setAcceleration(ScalableBalanceConstants.REVERSE_THRUST_ACCELERATION);
         player.setBoosting(false);
+        player.setThrusting(false);
     }
 
     /**

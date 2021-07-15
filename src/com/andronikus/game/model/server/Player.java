@@ -44,6 +44,10 @@ public class Player implements ICollideable {
 
     private PlayerColor color = null;
 
+    private boolean thrusting = false;
+
+    private int venom = 0;
+
     /**
      * {@inheritDoc}
      */

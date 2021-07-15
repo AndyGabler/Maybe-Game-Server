@@ -44,6 +44,7 @@ public class InputSetHandler {
         final HashMap<String, IInputCodeHandler> handler = new HashMap<>();
         handler.put("JOINGAME", new JoinGameInputCodeHandler());
         handler.put("THRUST", new ThrustInputCodeHandler());
+        handler.put("THRUSTEND", new ThrustEndInputCodeHandler());
         handler.put("RTHRUST", new ReverseThrustInputCodeHandler());
         handler.put("LROTATE", new LeftRotateInputCodeHandler());
         handler.put("RROTATE", new RightRotateInputCodeHandler());

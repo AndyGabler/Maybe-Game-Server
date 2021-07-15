@@ -46,7 +46,7 @@ public class DamageUtil {
             return shieldsAffected;
         }
 
-        if (player.getShieldCount() == 0 ) {
+        if (player.getShieldCount() == 0 || ignoreShields) {
             player.setHealth(player.getHealth() - damage);
             player.setShieldRecharge(0); // This is also cruel
         }

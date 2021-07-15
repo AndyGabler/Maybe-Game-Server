@@ -1,13 +1,22 @@
 package com.andronikus.gameserver.engine;
 
+import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
-import com.andronikus.game.model.server.ICollideable;
-import com.andronikus.gameserver.engine.collision.CollisionHandler;
-import com.andronikus.gameserver.engine.collision.PlayerAndLaserCollisionHandler;
-import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.game.model.server.GameState;
+import com.andronikus.game.model.server.ICollideable;
+import com.andronikus.game.model.server.Snake;
+import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
+import com.andronikus.gameserver.engine.collision.CollisionHandler;
+import com.andronikus.gameserver.engine.collision.LaserAsteroidCollisionHandler;
+import com.andronikus.gameserver.engine.collision.PlayerAndLaserCollisionHandler;
+import com.andronikus.gameserver.engine.collision.PlayerAsteroidCollisionHandler;
+import com.andronikus.gameserver.engine.collision.SnakeLaserCollisionHandler;
+import com.andronikus.gameserver.engine.collision.SnakePlayerCollisionHandler;
+import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.gameserver.auth.Session;
 import com.andronikus.gameserver.engine.player.ColorAssigner;
+import com.andronikus.gameserver.engine.snake.SnakeTargetingHelper;
+import com.andronikus.gameserver.engine.spawning.RandomOutOfBoundsSpawner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +36,9 @@ public class ServerEngine {
     private final ConcurrentInputManager inputManager;
     private final InputSetHandler inputHandler;
     private final ColorAssigner colorAssigner = new ColorAssigner();
+    private final RandomOutOfBoundsSpawner outOfBoundsSpawner = new RandomOutOfBoundsSpawner();
+    private final AsteroidSplitter asteroidSplitter = new AsteroidSplitter();
+    private final SnakeTargetingHelper snakeTargetingHelper = new SnakeTargetingHelper();
 
     /**
      * Instantiate engine for the server.
@@ -66,10 +78,13 @@ public class ServerEngine {
         });
 
         // Before the player's inputs are processed, let's clip some wings and make they're not overclocking
-        // Players lose all acceleration and rotational velocity until it is next requested
+        // Players lose negative acceleration and rotational velocity until it is next requested
         gameState.getPlayers().forEach(player -> {
             player.setRotationalVelocity(0);
-            player.setAcceleration(0);
+
+            if (player.getAcceleration() < 0) {
+                player.setAcceleration(0);
+            }
 
             player.setShieldLostThisTick(false);
             // If player is boosting, make sure they can't do this indefinitely
@@ -160,11 +175,68 @@ public class ServerEngine {
             // Slap the velocity onto the player
             player.setX(player.getX() + player.getXVelocity());
             player.setY(player.getY() + player.getYVelocity());
-            
+
+            if (player.getVenom() > 0) {
+                if ((ScalableBalanceConstants.SNAKE_VENOM_TICKS - player.getVenom()) % ScalableBalanceConstants.SNAKE_VENOM_TICKS_BETWEEN_DAMAGE == 0) {
+                    player.setHealth(player.getHealth() - ScalableBalanceConstants.SNAKE_VENOM_DAMAGE);
+                }
+                player.setVenom(player.getVenom() - 1);
+            }
+
             if (player.getHealth() <= 0) {
                 player.setDead(true);
             }
         });
+
+        // Snake movement
+        gameState.getSnakes().forEach(snake -> {
+            snakeTargetingHelper.evaluateSnakeDirection(snake, gameState);
+            snake.setX(snake.getX() + snake.getXVelocity());
+            snake.setY(snake.getY() + snake.getYVelocity());
+        });
+
+        gameState.getSnakes().removeIf(snake -> {
+            final boolean willRemove = snake.getX() < -400 || snake.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 400 ||
+                snake.getY() < -400 || snake.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 400;
+
+            if (willRemove) {
+                gameState.getCollideables().remove(snake);
+            }
+
+            return willRemove;
+        });
+
+        // Move asteroids
+        gameState.getAsteroids().forEach(asteroid -> {
+            asteroid.setX(asteroid.getX() + asteroid.getXVelocity());
+            asteroid.setY(asteroid.getY() + asteroid.getYVelocity());
+            asteroid.setAngle(asteroid.getAngle() + asteroid.getAngularVelocity());
+        });
+
+        // Asteroid crack and remove
+        final ArrayList<Asteroid> newAsteroids = new ArrayList<>();
+        gameState.getAsteroids().removeIf(asteroid -> {
+            if (asteroid.getDurability() <= 0) {
+                asteroid.setCrackingTicks(asteroid.getCrackingTicks() + 1);
+                if (asteroid.getCrackingTicks() > ScalableBalanceConstants.ASTEROID_CRACKING_TICKS) {
+                    gameState.getCollideables().remove(asteroid);
+                    if (asteroid.getSize() > 0) {
+                        asteroidSplitter.splitAsteroid(gameState, asteroid, newAsteroids);
+                    }
+                    return true;
+                }
+            }
+
+            if (asteroid.getX() < -400 || asteroid.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 400 ||
+                asteroid.getY() < -400 || asteroid.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 400) {
+                gameState.getCollideables().remove(asteroid);
+                return true;
+            }
+
+            return false;
+        });
+        gameState.getAsteroids().addAll(newAsteroids);
+        gameState.getCollideables().addAll(newAsteroids);
 
         // Check for collisions
         final ArrayList<ICollideable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
@@ -178,6 +250,7 @@ public class ServerEngine {
             }
         }
 
+        outOfBoundsSpawner.doRandomSpawns(gameState);
         gameState.setVersion(gameState.getVersion() + 1);
     }
 
@@ -187,6 +260,10 @@ public class ServerEngine {
     public void start() {
         final ArrayList<CollisionHandler> collisionHandlers = new ArrayList<>();
         collisionHandlers.add(new PlayerAndLaserCollisionHandler());
+        collisionHandlers.add(new LaserAsteroidCollisionHandler());
+        collisionHandlers.add(new PlayerAsteroidCollisionHandler());
+        collisionHandlers.add(new SnakeLaserCollisionHandler());
+        collisionHandlers.add(new SnakePlayerCollisionHandler());
         this.collisionHandlers = collisionHandlers;
         timer.start();
         timer.startTimer();
@@ -214,6 +291,17 @@ public class ServerEngine {
         border.setMaxX(ScalableBalanceConstants.BORDER_X_COORDINATE);
         border.setMaxY(ScalableBalanceConstants.BORDER_Y_COORDINATE);
         gameState.setBorder(border);
+
+        outOfBoundsSpawner.register(
+            Asteroid::new, 40, ScalableBalanceConstants.ASTEROID_SPAWN_CHANCE, ScalableBalanceConstants.ASTEROID_STARTING_SPEED_MAXIMUM,
+            ScalableBalanceConstants.ASTEROID_STARTING_SPEED_MINIMUM, ScalableBalanceConstants.ASTEROID_ROTATIONAL_VELOCITY_MAXIMUM,
+            ScalableBalanceConstants.ASTEROID_ROTATIONAL_VELOCITY_MINIMUM, GameState::getAsteroids
+        );
+
+        outOfBoundsSpawner.register(
+            Snake::new, 20, ScalableBalanceConstants.SNAKE_SPAWN_CHANCE, ScalableBalanceConstants.SNAKE_IDLE_SPEED,
+            ScalableBalanceConstants.SNAKE_IDLE_SPEED, 0, 0, GameState::getSnakes
+        );
     }
 
     /**

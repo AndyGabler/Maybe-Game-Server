@@ -253,9 +253,9 @@ public class CollisionUtil {
      * @return Is one engulfing the other?
      */
     private static boolean checkEngulfmentMethodForHitboxes(
-            long x0, long y0, int width0, int height0,
-            long x1, long y1, int width1, int height1,
-            ArrayList<Point> onePoints, ArrayList<Point> twoPoints
+        long x0, long y0, int width0, int height0,
+        long x1, long y1, int width1, int height1,
+        ArrayList<Point> onePoints, ArrayList<Point> twoPoints
     ) {
         //lineSetEngulfsPoint(Point in, Point[] pointSet)
         if (width0 >= width1 && height0 >= height1) {
