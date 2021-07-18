@@ -23,6 +23,7 @@ public class PlayerAndLaserCollisionHandler extends CollisionHandler<Player, Las
     @Override
     protected boolean collisionRelevant(GameState state, Player player, Laser laser) {
         return !player.isDead() &&
+               player.getCollidedPortalId() == null &&
                (laser.getXVelocity() != 0 || laser.getYVelocity() != 0) &&
                !laser.getLoyalty().equals(player.getSessionId());
     }

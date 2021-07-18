@@ -20,7 +20,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
      */
     @Override
     public void handleInput(GameState state, Player player, String inputCode, List<String> allInputs, Session session) {
-        if (player.isBoosting() || player.getLaserCharges() <= 0) {
+        if (player.isBoosting() || player.getLaserCharges() <= 0 || player.getCollidedPortalId() != null) {
             return;
         }
 

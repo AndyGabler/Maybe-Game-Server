@@ -4,18 +4,24 @@ import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.ICollideable;
+import com.andronikus.game.model.server.MicroBlackHole;
+import com.andronikus.game.model.server.Portal;
 import com.andronikus.game.model.server.Snake;
 import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
+import com.andronikus.gameserver.engine.blackhole.BlackHoleManager;
 import com.andronikus.gameserver.engine.collision.CollisionHandler;
 import com.andronikus.gameserver.engine.collision.LaserAsteroidCollisionHandler;
 import com.andronikus.gameserver.engine.collision.PlayerAndLaserCollisionHandler;
 import com.andronikus.gameserver.engine.collision.PlayerAsteroidCollisionHandler;
+import com.andronikus.gameserver.engine.collision.PlayerPortalCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakeLaserCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakePlayerCollisionHandler;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.gameserver.auth.Session;
 import com.andronikus.gameserver.engine.player.ColorAssigner;
+import com.andronikus.gameserver.engine.portal.PortalManager;
 import com.andronikus.gameserver.engine.snake.SnakeTargetingHelper;
+import com.andronikus.gameserver.engine.spawning.RandomInboundsSpawner;
 import com.andronikus.gameserver.engine.spawning.RandomOutOfBoundsSpawner;
 
 import java.util.ArrayList;
@@ -37,8 +43,11 @@ public class ServerEngine {
     private final InputSetHandler inputHandler;
     private final ColorAssigner colorAssigner = new ColorAssigner();
     private final RandomOutOfBoundsSpawner outOfBoundsSpawner = new RandomOutOfBoundsSpawner();
+    private final RandomInboundsSpawner inboundsObjectSpawner = new RandomInboundsSpawner();
     private final AsteroidSplitter asteroidSplitter = new AsteroidSplitter();
     private final SnakeTargetingHelper snakeTargetingHelper = new SnakeTargetingHelper();
+    private final BlackHoleManager blackHoleManager = new BlackHoleManager();
+    private final PortalManager portalManager = new PortalManager();
 
     /**
      * Instantiate engine for the server.
@@ -85,6 +94,9 @@ public class ServerEngine {
             if (player.getAcceleration() < 0) {
                 player.setAcceleration(0);
             }
+
+            player.setExternalXAcceleration(0);
+            player.setExternalYAcceleration(0);
 
             player.setShieldLostThisTick(false);
             // If player is boosting, make sure they can't do this indefinitely
@@ -143,6 +155,28 @@ public class ServerEngine {
             laser.setY(laser.getY() + laser.getYVelocity());
         });
 
+        // Portal manager
+        gameState.getPortals().removeIf(portal -> {
+            boolean willRemove = portalManager.handlePortalTick(gameState, portal);
+
+            if (willRemove) {
+                gameState.getCollideables().remove(portal);
+            }
+
+            return willRemove;
+        });
+
+        // Black hole manager
+        gameState.getBlackHoles().removeIf(blackHole -> {
+            boolean willRemove = blackHoleManager.handleBlackHoleTick(gameState, blackHole);
+
+            if (willRemove) {
+                gameState.getCollideables().remove(blackHole);
+            }
+
+            return willRemove;
+        });
+
         gameState.getPlayers().forEach(player -> {
             colorAssigner.assignPlayerColor(player);
 
@@ -169,12 +203,17 @@ public class ServerEngine {
             player.setXVelocity((long) (Math.cos(player.getAngle()) * (double)player.getSpeed()));
             player.setYVelocity((long) (Math.sin(player.getAngle()) * (double)player.getSpeed()));
 
+            player.setXVelocity(player.getXVelocity() + player.getExternalXAcceleration());
+            player.setYVelocity(player.getYVelocity() + player.getExternalYAcceleration());
+
             // Make sure noone crosses the border by adjusting velocities
             gameState.getBorder().adjustSpeedToNotCrossBorder(player);
 
             // Slap the velocity onto the player
-            player.setX(player.getX() + player.getXVelocity());
-            player.setY(player.getY() + player.getYVelocity());
+            if (player.getCollidedPortalId() == null) {
+                player.setX(player.getX() + player.getXVelocity());
+                player.setY(player.getY() + player.getYVelocity());
+            }
 
             if (player.getVenom() > 0) {
                 if ((ScalableBalanceConstants.SNAKE_VENOM_TICKS - player.getVenom()) % ScalableBalanceConstants.SNAKE_VENOM_TICKS_BETWEEN_DAMAGE == 0) {
@@ -251,6 +290,7 @@ public class ServerEngine {
         }
 
         outOfBoundsSpawner.doRandomSpawns(gameState);
+        inboundsObjectSpawner.doRandomSpawns(gameState);
         gameState.setVersion(gameState.getVersion() + 1);
     }
 
@@ -264,6 +304,7 @@ public class ServerEngine {
         collisionHandlers.add(new PlayerAsteroidCollisionHandler());
         collisionHandlers.add(new SnakeLaserCollisionHandler());
         collisionHandlers.add(new SnakePlayerCollisionHandler());
+        collisionHandlers.add(new PlayerPortalCollisionHandler());
         this.collisionHandlers = collisionHandlers;
         timer.start();
         timer.startTimer();
@@ -301,6 +342,16 @@ public class ServerEngine {
         outOfBoundsSpawner.register(
             Snake::new, 20, ScalableBalanceConstants.SNAKE_SPAWN_CHANCE, ScalableBalanceConstants.SNAKE_IDLE_SPEED,
             ScalableBalanceConstants.SNAKE_IDLE_SPEED, 0, 0, GameState::getSnakes
+        );
+
+        inboundsObjectSpawner.register(
+            MicroBlackHole::new, 10, ScalableBalanceConstants.BLACK_HOLE_SPAWN_CHANCE, ScalableBalanceConstants.BLACK_HOLE_ANGULAR_VELOCITY_MAXIMUM,
+            ScalableBalanceConstants.BLACK_HOLE_ANGULAR_VELOCITY_MINIMUM, GameState::getBlackHoles
+        );
+
+        inboundsObjectSpawner.register(
+            Portal::new, 5, ScalableBalanceConstants.PORTAL_SPAWN_CHANCE,
+            0, 0, GameState::getPortals
         );
     }
 

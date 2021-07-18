@@ -22,7 +22,7 @@ public class PlayerAsteroidCollisionHandler extends CollisionHandler<Player, Ast
      */
     @Override
     protected boolean collisionRelevant(GameState state, Player player, Asteroid asteroid) {
-        return asteroid.getDurability() > 0 && !player.isDead();
+        return asteroid.getDurability() > 0 && !player.isDead() && player.getCollidedPortalId() == null;
     }
 
     /**

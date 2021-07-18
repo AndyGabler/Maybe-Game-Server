@@ -22,6 +22,9 @@ public class Player implements ICollideable {
     private long XVelocity = 0;
     private long yVelocity = 0;
 
+    private long externalXAcceleration = 0;
+    private long externalYAcceleration = 0;
+
     private long speed = 0;
     private long acceleration = 0;
 
@@ -47,6 +50,9 @@ public class Player implements ICollideable {
     private boolean thrusting = false;
 
     private int venom = 0;
+
+    private Long collidedPortalId = null;
+    private boolean performedWarp = false;
 
     /**
      * {@inheritDoc}

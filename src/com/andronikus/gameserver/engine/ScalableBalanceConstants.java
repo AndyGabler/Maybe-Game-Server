@@ -164,4 +164,44 @@ public class ScalableBalanceConstants {
     public static final int SNAKE_VENOM_TICKS_BETWEEN_DAMAGE = 7;
     public static final int SNAKE_VENOM_TICKS = 49;
     public static final int SNAKE_VENOM_DAMAGE = 1;
+
+    /*
+     * Size of black holes.
+     */
+    public static final int BLACK_HOLE_SIZE = 128;
+
+    /**
+     * Probability of a black hole spawning.
+     */
+    public static final double BLACK_HOLE_SPAWN_CHANCE = 1.00 / 350.0;
+
+    /*
+     * Black hole rotational velocity range.
+     */
+    public static final double BLACK_HOLE_ANGULAR_VELOCITY_MINIMUM = Math.PI / 90;
+    public static final double BLACK_HOLE_ANGULAR_VELOCITY_MAXIMUM = Math.PI / 30;
+
+    /*
+     * Values defining the effectiveness of black holes.
+     */
+    public static final double BLACK_HOLE_ACTIVE_RANGE = 450.0;
+    public static final double BLACK_HOLE_GRAVITY = 7.3549;
+
+    /*
+     * Size of portals.
+     */
+    public static final int PORTAL_SIZE = 64;
+
+    /*
+     * Probability of a portal spawning.
+     */
+    public static final double PORTAL_SPAWN_CHANCE = 1.0 / 275.0;
+
+    public static final int PORTAL_COLLISION_TICKS_BEFORE_TRANSPORT = 18;
+    public static final int PORTAL_TRANSPORT_TICKS_BEFORE_RELEASE = 18;
+
+    /*
+     * Chance that a portal/black hole despawn on each tick. Average of 7s of sticking around.
+     */
+    public static final double PORTAL_BLACK_HOLE_DESPAWN_CHANCE = 1.0 / 210.0;
 }

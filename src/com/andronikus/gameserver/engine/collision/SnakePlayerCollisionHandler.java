@@ -21,7 +21,7 @@ public class SnakePlayerCollisionHandler extends CollisionHandler<Snake, Player>
      */
     @Override
     protected boolean collisionRelevant(GameState state, Snake snake, Player player) {
-        return snake.getHealth() > 0 && !player.isDead();
+        return snake.getHealth() > 0 && !player.isDead() && player.getCollidedPortalId() == null;
     }
 
     /**
