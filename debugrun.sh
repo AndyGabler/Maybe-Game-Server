@@ -1,1 +1,1 @@
-./gradlew run --args="-authMethod static"
+./gradlew run --args="-authMethod static -debugMode true"

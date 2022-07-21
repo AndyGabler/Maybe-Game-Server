@@ -354,6 +354,15 @@ public class ServerEngine {
             0, 0, GameState::getPortals
         );
     }
+    /**
+     *
+     * Set whether the server is in debug mode.
+     *
+     * @param debugMode If server is in debug mode
+     */
+    public void setDebugMode(boolean debugMode) {
+        gameState.setServerDebugMode(debugMode);
+    }
 
     /**
      * Pause the engine.

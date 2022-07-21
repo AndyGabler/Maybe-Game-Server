@@ -69,6 +69,7 @@ public class GameServer implements IUdpServerConfiguration {
         byteToClientRequestTransformer = aByteToClientRequestTransformer;
         sessionManager = aSessionManager;
         authenticationServlet = new AuthenticationServlet(aSessionManager, authenticationProvider);
+        engine.calculateInitialGameState();
     }
 
     /**
@@ -88,7 +89,6 @@ public class GameServer implements IUdpServerConfiguration {
         server.start();
         keyServlet.start();
         authenticationServlet.start();
-        engine.calculateInitialGameState();
         engine.start();
     }
 
@@ -161,6 +161,15 @@ public class GameServer implements IUdpServerConfiguration {
         } else {
             LOGGER.warning(logHeader + "String message received. This is abnormal.");
         }
+    }
+
+    /**
+     * Set whether the server is in debug mode.
+     *
+     * @param debugMode If server is in debug mode
+     */
+    public void setDebugMode(boolean debugMode) {
+        engine.setDebugMode(debugMode);
     }
 
     /**
