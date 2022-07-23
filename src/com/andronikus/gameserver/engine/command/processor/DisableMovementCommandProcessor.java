@@ -4,6 +4,7 @@ import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Command processor for the disable movement command.
@@ -11,6 +12,8 @@ import java.util.List;
  * @author Andronikus
  */
 public class DisableMovementCommandProcessor extends AbstractCommandProcessor {
+
+    private static final Logger LOGGER = Logger.getLogger("DisableMovementCommandProcessor");
 
     /**
      * Instantiate a command processor for the disable movement command.
@@ -26,7 +29,7 @@ public class DisableMovementCommandProcessor extends AbstractCommandProcessor {
      */
     @Override
     public void process(GameState state, List<String> parameters) {
-        System.out.println("disable");
+        LOGGER.info("Movement disabled.");
         state.setMovementEnabled(false);
     }
 }

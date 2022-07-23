@@ -160,10 +160,12 @@ public class ServerEngine {
         });
 
         // TODO these engine steps will eventually need to be better managed
-        gameState.getLasers().forEach(laser -> {
-            laser.setX(laser.getX() + laser.getXVelocity());
-            laser.setY(laser.getY() + laser.getYVelocity());
-        });
+        if (isMovementEnabled()) {
+            gameState.getLasers().forEach(laser -> {
+                laser.setX(laser.getX() + laser.getXVelocity());
+                laser.setY(laser.getY() + laser.getYVelocity());
+            });
+        }
 
         // Portal manager
         gameState.getPortals().removeIf(portal -> {
@@ -220,7 +222,7 @@ public class ServerEngine {
             gameState.getBorder().adjustSpeedToNotCrossBorder(player);
 
             // Slap the velocity onto the player
-            if (player.getCollidedPortalId() == null) {
+            if (player.getCollidedPortalId() == null && isMovementEnabled()) {
                 player.setX(player.getX() + player.getXVelocity());
                 player.setY(player.getY() + player.getYVelocity());
             }
@@ -238,11 +240,13 @@ public class ServerEngine {
         });
 
         // Snake movement
-        gameState.getSnakes().forEach(snake -> {
-            snakeTargetingHelper.evaluateSnakeDirection(snake, gameState);
-            snake.setX(snake.getX() + snake.getXVelocity());
-            snake.setY(snake.getY() + snake.getYVelocity());
-        });
+        if (isMovementEnabled()) {
+            gameState.getSnakes().forEach(snake -> {
+                snakeTargetingHelper.evaluateSnakeDirection(snake, gameState);
+                snake.setX(snake.getX() + snake.getXVelocity());
+                snake.setY(snake.getY() + snake.getYVelocity());
+            });
+        }
 
         gameState.getSnakes().removeIf(snake -> {
             final boolean willRemove = snake.getX() < -400 || snake.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 400 ||
@@ -256,11 +260,13 @@ public class ServerEngine {
         });
 
         // Move asteroids
-        gameState.getAsteroids().forEach(asteroid -> {
-            asteroid.setX(asteroid.getX() + asteroid.getXVelocity());
-            asteroid.setY(asteroid.getY() + asteroid.getYVelocity());
-            asteroid.setAngle(asteroid.getAngle() + asteroid.getAngularVelocity());
-        });
+        if (isMovementEnabled()) {
+            gameState.getAsteroids().forEach(asteroid -> {
+                asteroid.setX(asteroid.getX() + asteroid.getXVelocity());
+                asteroid.setY(asteroid.getY() + asteroid.getYVelocity());
+                asteroid.setAngle(asteroid.getAngle() + asteroid.getAngularVelocity());
+            });
+        }
 
         // Asteroid crack and remove
         final ArrayList<Asteroid> newAsteroids = new ArrayList<>();
@@ -288,19 +294,23 @@ public class ServerEngine {
         gameState.getCollideables().addAll(newAsteroids);
 
         // Check for collisions
-        final ArrayList<ICollideable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
-        final int collideablesSize = collideablesCopy.size();
-        for (int index = 0; index < collideablesSize - 1; index++) {
-            for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
-                final ICollideable collideable0 = collideablesCopy.get(index);
-                final ICollideable collideable1 = collideablesCopy.get(innerIndex);
+        if (isCollisionEnabled()) {
+            final ArrayList<ICollideable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
+            final int collideablesSize = collideablesCopy.size();
+            for (int index = 0; index < collideablesSize - 1; index++) {
+                for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
+                    final ICollideable collideable0 = collideablesCopy.get(index);
+                    final ICollideable collideable1 = collideablesCopy.get(innerIndex);
 
-                collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                    collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                }
             }
         }
 
-        outOfBoundsSpawner.doRandomSpawns(gameState);
-        inboundsObjectSpawner.doRandomSpawns(gameState);
+        if (isSpawningEnabled()) {
+            outOfBoundsSpawner.doRandomSpawns(gameState);
+            inboundsObjectSpawner.doRandomSpawns(gameState);
+        }
         gameState.setVersion(gameState.getVersion() + 1);
     }
 
@@ -402,5 +412,32 @@ public class ServerEngine {
      */
     public void kill() {
         timer.kill();
+    }
+
+    /**
+     * Are collisions currently enabled?
+     *
+     * @return If enabled
+     */
+    private boolean isCollisionEnabled() {
+        return gameState.isTickEnabled() && gameState.isCollisionsEnabled();
+    }
+
+    /**
+     * Is movement currently enabled?
+     *
+     * @return If enabled
+     */
+    private boolean isMovementEnabled() {
+        return gameState.isTickEnabled() && gameState.isMovementEnabled();
+    }
+
+    /**
+     * Is spawning currently enabled?
+     *
+     * @return If enabled
+     */
+    private boolean isSpawningEnabled() {
+        return gameState.isTickEnabled() && gameState.isSpawningEnabled();
     }
 }

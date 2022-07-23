@@ -7,20 +7,20 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Command processor for the enable movement command.
+ * Command processor for the enable collision command.
  *
  * @author Andronikus
  */
-public class EnableMovementCommandProcessor extends AbstractCommandProcessor {
+public class EnableCollisionCommandProcessor extends AbstractCommandProcessor {
 
-    private static final Logger LOGGER = Logger.getLogger("EnableMovementCommandProcessor");
+    private static final Logger LOGGER = Logger.getLogger("EnableCollisionCommandProcessor");
 
     /**
-     * Instantiate a command processor for the enable movement command.
+     * Instantiate a command processor for the enable collision command.
      *
      * @param aCommandManager The command manager
      */
-    public EnableMovementCommandProcessor(ServerCommandManager aCommandManager) {
+    public EnableCollisionCommandProcessor(ServerCommandManager aCommandManager) {
         super(aCommandManager);
     }
 
@@ -29,7 +29,7 @@ public class EnableMovementCommandProcessor extends AbstractCommandProcessor {
      */
     @Override
     public void process(GameState state, List<String> parameters) {
-        LOGGER.info("Movement enabled.");
-        state.setMovementEnabled(true);
+        LOGGER.info("Collisions enabled.");
+        state.setCollisionsEnabled(true);
     }
 }

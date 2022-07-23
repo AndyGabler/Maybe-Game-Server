@@ -4,8 +4,14 @@ import com.andronikus.game.model.server.CommandAcknowledgement;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.gameserver.engine.command.processor.AbstractCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.DisableCollisionCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.DisableMovementCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.DisableSpawningCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.DisableTickCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.EnableCollisionCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.EnableMovementCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.EnableSpawningCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.EnableTickCommandProcessor;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -36,8 +42,14 @@ public class ServerCommandManager {
     public ServerCommandManager(ServerEngine anEngine) {
         engine = anEngine;
         commandProcessorMap = new HashMap<>();
+        commandProcessorMap.put("TICKOFF", new DisableTickCommandProcessor(this));
+        commandProcessorMap.put("TICKON", new EnableTickCommandProcessor(this));
+        commandProcessorMap.put("COLLISIONOFF", new DisableCollisionCommandProcessor(this));
+        commandProcessorMap.put("COLLISIONON", new EnableCollisionCommandProcessor(this));
         commandProcessorMap.put("MOVEMENTOFF", new DisableMovementCommandProcessor(this));
         commandProcessorMap.put("MOVEMENTON", new EnableMovementCommandProcessor(this));
+        commandProcessorMap.put("SPAWNINGOFF", new DisableSpawningCommandProcessor(this));
+        commandProcessorMap.put("SPAWNINGON", new EnableSpawningCommandProcessor(this));
     }
 
     /**
@@ -63,6 +75,7 @@ public class ServerCommandManager {
         acknowledgedCommands.addAll(newCommands);
 
         // For the acknowledged commands, let the clients know
+        gameState.getCommandAcknowledgements().clear();
         acknowledgedCommands.forEach(acknowledgedCommand -> {
             final CommandAcknowledgement gameStateAck = new CommandAcknowledgement();
             gameStateAck.setCommandId(acknowledgedCommand.getCommandId());

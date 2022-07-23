@@ -27,6 +27,8 @@ public class GameState implements Serializable {
     private ArrayList<CommandAcknowledgement> commandAcknowledgements = new ArrayList<>();
 
     // Control flags
-    private boolean movementEnabled = true;
+    private boolean tickEnabled = true;
     private boolean collisionsEnabled = true;
+    private boolean movementEnabled = true;
+    private boolean spawningEnabled = true;
 }
