@@ -16,6 +16,8 @@ import com.andronikus.gameserver.engine.collision.PlayerAsteroidCollisionHandler
 import com.andronikus.gameserver.engine.collision.PlayerPortalCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakeLaserCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakePlayerCollisionHandler;
+import com.andronikus.gameserver.engine.command.CommandEngineTransferQueue;
+import com.andronikus.gameserver.engine.command.ServerCommandManager;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
 import com.andronikus.gameserver.auth.Session;
 import com.andronikus.gameserver.engine.player.ColorAssigner;
@@ -23,6 +25,7 @@ import com.andronikus.gameserver.engine.portal.PortalManager;
 import com.andronikus.gameserver.engine.snake.SnakeTargetingHelper;
 import com.andronikus.gameserver.engine.spawning.RandomInboundsSpawner;
 import com.andronikus.gameserver.engine.spawning.RandomOutOfBoundsSpawner;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,9 @@ public class ServerEngine {
     private GameState gameState;
     private final ServerTimeManager timer;
     private final ConcurrentInputManager inputManager;
+    @Getter
+    private final CommandEngineTransferQueue commandTransferQueue;
+    private final ServerCommandManager commandManager;
     private final InputSetHandler inputHandler;
     private final ColorAssigner colorAssigner = new ColorAssigner();
     private final RandomOutOfBoundsSpawner outOfBoundsSpawner = new RandomOutOfBoundsSpawner();
@@ -59,6 +65,8 @@ public class ServerEngine {
         timer = new ServerTimeManager(this, ScalableBalanceConstants.DEFAULT_TPS); // TODO non-static or different frame rate?
         inputManager = new ConcurrentInputManager();
         inputHandler = new InputSetHandler();
+        commandTransferQueue = new CommandEngineTransferQueue();
+        commandManager = new ServerCommandManager(this);
     }
 
     /**
@@ -73,6 +81,8 @@ public class ServerEngine {
      * Calculate the next game state.
      */
     private void calculateNextGameState() {
+        commandManager.transferCommands(gameState, commandTransferQueue);
+        commandManager.processCommands(gameState);
 
         // Get rid of lasers if they are beyond the border and will not impact anything
         gameState.getLasers().removeIf(laser -> {
@@ -362,6 +372,15 @@ public class ServerEngine {
      */
     public void setDebugMode(boolean debugMode) {
         gameState.setServerDebugMode(debugMode);
+    }
+
+    /**
+     * Whether the server is in debug mode.
+     *
+     * @return True if in debug mdoe
+     */
+    public boolean isDebugMode() {
+        return gameState.isServerDebugMode();
     }
 
     /**
