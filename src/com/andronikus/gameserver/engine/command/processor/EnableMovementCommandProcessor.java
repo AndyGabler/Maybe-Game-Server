@@ -1,6 +1,7 @@
 package com.andronikus.gameserver.engine.command.processor;
 
 import com.andronikus.game.model.server.GameState;
+import com.andronikus.gameserver.engine.command.EngineCommand;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class EnableMovementCommandProcessor extends AbstractCommandProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void process(GameState state, List<String> parameters) {
+    public void doProcess(EngineCommand command, GameState state, List<String> parameters) {
         LOGGER.info("Movement enabled.");
         state.setMovementEnabled(true);
     }

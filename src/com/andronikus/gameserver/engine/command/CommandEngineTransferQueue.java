@@ -32,7 +32,7 @@ public class CommandEngineTransferQueue {
             session.getId() + " and command number " + clientCommand.getCommandNumber() + "."
         );
         final EngineCommand engineCommand = new EngineCommand();
-        engineCommand.setSessionId(session.getId());
+        engineCommand.setSession(session);
         engineCommand.setCommandText(clientCommand.getCode());
         engineCommand.setCommandId(clientCommand.getCommandNumber());
         newCommands.add(engineCommand);
@@ -50,7 +50,7 @@ public class CommandEngineTransferQueue {
             session.getUsername() + " Command Number: " + clientCommand.getCommandNumber() + "."
         );
         final EngineCommand engineCommand = new EngineCommand();
-        engineCommand.setSessionId(session.getId());
+        engineCommand.setSession(session);
         engineCommand.setCommandText(clientCommand.getCode());
         engineCommand.setCommandId(clientCommand.getCommandNumber());
         retiredCommands.add(engineCommand);

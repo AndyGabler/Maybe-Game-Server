@@ -12,6 +12,8 @@ import com.andronikus.gameserver.engine.command.processor.EnableCollisionCommand
 import com.andronikus.gameserver.engine.command.processor.EnableMovementCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.EnableSpawningCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.EnableTickCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.RespawnCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.SpawnEntityCommandProcessor;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
  * @author Andronikus
  */
 public class ServerCommandManager {
+
+    private static final Logger LOGGER = Logger.getLogger("ServerCommandManager");
 
     @Getter
     private final ServerEngine engine;
@@ -50,6 +55,8 @@ public class ServerCommandManager {
         commandProcessorMap.put("MOVEMENTON", new EnableMovementCommandProcessor(this));
         commandProcessorMap.put("SPAWNINGOFF", new DisableSpawningCommandProcessor(this));
         commandProcessorMap.put("SPAWNINGON", new EnableSpawningCommandProcessor(this));
+        commandProcessorMap.put("RESPAWN", new RespawnCommandProcessor(this));
+        commandProcessorMap.put("SPAWN", new SpawnEntityCommandProcessor(this));
     }
 
     /**
@@ -79,7 +86,7 @@ public class ServerCommandManager {
         acknowledgedCommands.forEach(acknowledgedCommand -> {
             final CommandAcknowledgement gameStateAck = new CommandAcknowledgement();
             gameStateAck.setCommandId(acknowledgedCommand.getCommandId());
-            gameStateAck.setSessionId(acknowledgedCommand.getSessionId());
+            gameStateAck.setSessionId(acknowledgedCommand.getSession().getId());
             gameState.getCommandAcknowledgements().add(gameStateAck);
         });
     }
@@ -105,7 +112,9 @@ public class ServerCommandManager {
             final String commandCode = commandAndParameters.remove(0);
             final AbstractCommandProcessor processor = commandProcessorMap.get(commandCode);
             if (processor != null) {
-                processor.process(gameState, commandAndParameters);
+                processor.process(command, gameState, commandAndParameters);
+            } else {
+                LOGGER.warning("No processor found for command " + command.getId() + " with text \"" + commandText + "\".");
             }
             return true;
         });

@@ -5,6 +5,7 @@ import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.ICollideable;
 import com.andronikus.game.model.server.MicroBlackHole;
+import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
 import com.andronikus.game.model.server.Snake;
 import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
@@ -29,6 +30,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 /**
@@ -374,6 +376,31 @@ public class ServerEngine {
             0, 0, GameState::getPortals
         );
     }
+
+    /**
+     * Respawn a player.
+     *
+     * @param player The player to respawn
+     */
+    public void respawnPlayer(Player player) {
+        player.setHealth(ScalableBalanceConstants.PLAYER_HEALTH);
+        player.setBoostingCharge(ScalableBalanceConstants.BOOSTING_CHARGE);
+        player.setBoostingRecharge(0);
+        player.setLaserRecharge(0);
+        player.setLaserCharges(ScalableBalanceConstants.PLAYER_LASER_CHARGES);
+        player.setSpeed(0);
+        player.setShieldCount(ScalableBalanceConstants.PLAYER_SHIELD_COUNT);
+        player.setShieldRecharge(ScalableBalanceConstants.SHIELD_RECHARGE_CAP);
+
+        // Randomly set positions
+        player.setAngle(Math.PI * 2 * new Random().nextDouble());
+        player.setX((long)(((double)ScalableBalanceConstants.BORDER_X_COORDINATE) * new Random().nextDouble()));
+        player.setY((long)(((double)ScalableBalanceConstants.BORDER_Y_COORDINATE) * new Random().nextDouble()));
+
+        // Last step for multi-thread reasons
+        player.setDead(false);
+    }
+
     /**
      *
      * Set whether the server is in debug mode.
