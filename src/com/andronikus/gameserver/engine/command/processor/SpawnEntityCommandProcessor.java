@@ -17,6 +17,11 @@ import java.util.function.Consumer;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
+/**
+ * Command processor for the spawn entity command.
+ *
+ * @author Andronikus
+ */
 public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
 
     private static final Logger LOGGER = Logger.getLogger("SpawnEntityCommandProcessor");
@@ -257,7 +262,6 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
             }
         }
 
-        // TODO do spawn
         final SpawnInformation information = new SpawnInformation();
         information.command = command;
         information.positionAnchor = positionAnchor;
@@ -269,10 +273,23 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
         spawner.accept(information);
     }
 
+    /**
+     * Fail processing of command.
+     *
+     * @param engineCommand The command
+     * @param reason Reason the command failed
+     */
     private void failCommandProcessing(EngineCommand engineCommand, String reason) {
         LOGGER.warning("Spawn command terminated for command " + engineCommand.getId() + " for reason: " + reason);
     }
 
+    /**
+     * Allocate an ID for the entity to be generated
+     *
+     * @param command the command
+     * @param state The state of the game
+     * @return The ID
+     */
     private long allocateNewId(EngineCommand command, GameState state) {
         final long nextId = state.getNextSpawnId();
         state.setNextSpawnId(nextId + 1);
