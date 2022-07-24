@@ -17,6 +17,7 @@ public class Laser implements ICollideable {
     private long yVelocity;
     private String loyalty;
     private long id;
+    private boolean active = true;
     private double angle;
 
     /**

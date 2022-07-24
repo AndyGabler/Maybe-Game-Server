@@ -5,6 +5,7 @@ import com.andronikus.gameserver.engine.command.EngineCommand;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -34,7 +35,11 @@ public abstract class AbstractCommandProcessor {
             "Starting processing of command " + command.getId() + " from player " +
             command.getSession().getUsername() + " from session."
         );
-        doProcess(command, state, parameters);
+        try {
+            doProcess(command, state, parameters);
+        } catch (Exception exception) {
+            LOGGER.log(Level.SEVERE, "Exception thrown in processing of command " + command.getId(), exception);
+        }
         LOGGER.info("Processed command " + command.getId() + ".");
     }
 

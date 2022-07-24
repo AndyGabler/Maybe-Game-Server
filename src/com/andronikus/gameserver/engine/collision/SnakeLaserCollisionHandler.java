@@ -21,7 +21,7 @@ public class SnakeLaserCollisionHandler extends CollisionHandler<Snake, Laser> {
      */
     @Override
     protected boolean collisionRelevant(GameState state, Snake snake, Laser laser) {
-        return laser.getXVelocity() != 0 || laser.getYVelocity() != 0;
+        return laser.isActive();
     }
 
     /**
@@ -31,6 +31,7 @@ public class SnakeLaserCollisionHandler extends CollisionHandler<Snake, Laser> {
     protected void handleCollision(GameState state, Snake snake, Laser laser) {
         laser.setXVelocity(0);
         laser.setYVelocity(0);
+        laser.setActive(false);
 
         snake.setHealth(snake.getHealth() - ScalableBalanceConstants.LASER_DAMAGE);
     }
