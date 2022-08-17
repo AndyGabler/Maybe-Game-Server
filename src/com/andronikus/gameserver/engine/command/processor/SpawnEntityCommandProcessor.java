@@ -7,6 +7,7 @@ import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
 import com.andronikus.game.model.server.Snake;
+import com.andronikus.gameserver.engine.command.CommandInputFailException;
 import com.andronikus.gameserver.engine.command.EngineCommand;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 
@@ -164,15 +165,13 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
          */
 
         if (parameters.size() < 3) {
-            failCommandProcessing(command, "Command is missing parameters.");
-            return;
+            throw new CommandInputFailException("Command is missing parameters.");
         }
 
         String entityType = parameters.get(0);
         final Consumer<SpawnInformation> spawner = entityTypeToSpawnerMap.get(entityType);
         if (spawner == null) {
-            failCommandProcessing(command, "No spawner for entity type \"" + entityType + "\".");
-            return;
+            throw new CommandInputFailException("No spawner for entity type \"" + entityType + "\".");
         }
         long spawnX;
         long spawnY;
@@ -180,8 +179,7 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
             spawnX = Long.parseLong(parameters.get(1));
             spawnY = Long.parseLong(parameters.get(2));
         } catch (NumberFormatException exception) {
-            failCommandProcessing(command, "Either X parameter or Y parameter is non-numeric.");
-            return;
+            throw new CommandInputFailException("Either X parameter or Y parameter is non-numeric.");
         }
 
         long xVelocity = 0;
@@ -190,16 +188,14 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
             try {
                 xVelocity = Long.parseLong(parameters.get(3));
             } catch (NumberFormatException exception) {
-                failCommandProcessing(command, "Unable to parse non-numeric X Velocity.");
-                return;
+                throw new CommandInputFailException("Unable to parse non-numeric X Velocity.");
             }
         }
         if (parameters.size() > 4) {
             try {
                 yVelocity = Long.parseLong(parameters.get(4));
             } catch (NumberFormatException exception) {
-                failCommandProcessing(command, "Unable to parse non-numeric Y Velocity.");
-                return;
+                throw new CommandInputFailException("Unable to parse non-numeric Y Velocity.");
             }
         }
 
@@ -209,21 +205,18 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
             if (positioningType.equalsIgnoreCase("A")) {
                 absolutePositioning = true;
             } else if (!positioningType.equalsIgnoreCase("R")) {
-                failCommandProcessing(command, "Positioning type of \"" + positioningType + "\" not valid.");
-                return;
+                throw new CommandInputFailException("Positioning type of \"" + positioningType + "\" not valid.");
             }
         }
 
         RelativePositionAnchor positionAnchor = null;
         if (parameters.size() > 6) {
             if (parameters.size() <= 7) {
-                failCommandProcessing(command, "Must define type and ID for relative spawning.");
-                return;
+                throw new CommandInputFailException("Must define type and ID for relative spawning.");
             }
 
             if (absolutePositioning) {
-                failCommandProcessing(command, "Cannot define relative spawning type and ID when absolute positioning enabled.");
-                return;
+                throw new CommandInputFailException("Cannot define relative spawning type and ID when absolute positioning enabled.");
             }
 
             final String relativeEntityType = parameters.get(6);
@@ -231,20 +224,17 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
             try {
                 relativePositioningId = Long.parseLong(parameters.get(7));
             } catch (NumberFormatException exception) {
-                failCommandProcessing(command, "Relative positioning ID is non-numeric.");
-                return;
+                throw new CommandInputFailException("Relative positioning ID is non-numeric.");
             }
 
             final BiFunction<GameState, Long, RelativePositionAnchor> positionAnchorFunction = entityTypeToPositionFinderMap.get(relativeEntityType);
             if (positionAnchorFunction == null) {
-                failCommandProcessing(command, "Entity type \"" + relativeEntityType + "\" is invalid for relative positioning.");
-                return;
+                throw new CommandInputFailException("Entity type \"" + relativeEntityType + "\" is invalid for relative positioning.");
             }
 
             positionAnchor = positionAnchorFunction.apply(state, relativePositioningId);
             if (positionAnchor == null) {
-                failCommandProcessing(command, "No position anchor for entity type \"" + relativeEntityType + "\" and ID " + relativePositioningId + ".");
-                return;
+                throw new CommandInputFailException("No position anchor for entity type \"" + relativeEntityType + "\" and ID " + relativePositioningId + ".");
             }
         }
 
@@ -271,16 +261,6 @@ public class SpawnEntityCommandProcessor extends AbstractCommandProcessor {
         information.yVelocity = yVelocity;
         information.state = state;
         spawner.accept(information);
-    }
-
-    /**
-     * Fail processing of command.
-     *
-     * @param engineCommand The command
-     * @param reason Reason the command failed
-     */
-    private void failCommandProcessing(EngineCommand engineCommand, String reason) {
-        LOGGER.warning("Spawn command terminated for command " + engineCommand.getId() + " for reason: " + reason);
     }
 
     /**

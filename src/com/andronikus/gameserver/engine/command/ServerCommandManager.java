@@ -4,6 +4,7 @@ import com.andronikus.game.model.server.CommandAcknowledgement;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.gameserver.engine.command.processor.AbstractCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.DestroyCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.DisableCollisionCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.DisableMovementCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.DisableSpawningCommandProcessor;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,7 @@ public class ServerCommandManager {
         commandProcessorMap.put("SPAWNINGON", new EnableSpawningCommandProcessor(this));
         commandProcessorMap.put("RESPAWN", new RespawnCommandProcessor(this));
         commandProcessorMap.put("SPAWN", new SpawnEntityCommandProcessor(this));
+        commandProcessorMap.put("DESTROY", new DestroyCommandProcessor(this));
     }
 
     /**
@@ -112,7 +115,14 @@ public class ServerCommandManager {
             final String commandCode = commandAndParameters.remove(0);
             final AbstractCommandProcessor processor = commandProcessorMap.get(commandCode);
             if (processor != null) {
-                processor.process(command, gameState, commandAndParameters);
+                try {
+                    processor.process(command, gameState, commandAndParameters);
+                    LOGGER.info("Command " + command.getId() + " processed successfully.");
+                } catch (CommandInputFailException exception) {
+                    LOGGER.warning("Processing for command " + command.getId() + "failed for reason: " + exception.getFailureReason());
+                } catch (Exception exception) {
+                    LOGGER.log(Level.SEVERE, "Command processing for command " + command.getId() + "failed.", exception);
+                }
             } else {
                 LOGGER.warning("No processor found for command " + command.getId() + " with text \"" + commandText + "\".");
             }

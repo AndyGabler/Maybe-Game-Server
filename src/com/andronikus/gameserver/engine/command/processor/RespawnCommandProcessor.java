@@ -2,6 +2,7 @@ package com.andronikus.gameserver.engine.command.processor;
 
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
+import com.andronikus.gameserver.engine.command.CommandInputFailException;
 import com.andronikus.gameserver.engine.command.EngineCommand;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 
@@ -53,7 +54,7 @@ public class RespawnCommandProcessor extends AbstractCommandProcessor {
         }
 
         if (message != null) {
-            LOGGER.warning("Failed to process command " + command.getId() + ": " + message);
+            throw new CommandInputFailException(message);
         }
 
         return player;
