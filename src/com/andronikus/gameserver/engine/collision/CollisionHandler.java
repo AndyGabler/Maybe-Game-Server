@@ -1,7 +1,7 @@
 package com.andronikus.gameserver.engine.collision;
 
 import com.andronikus.game.model.server.GameState;
-import com.andronikus.game.model.server.ICollideable;
+import com.andronikus.game.model.server.IMoveable;
 
 /**
  * Handler for a collision between two objects.
@@ -10,7 +10,7 @@ import com.andronikus.game.model.server.ICollideable;
  * @param <TYPE_TWO> Type of the second object
  * @author Andronikus
  */
-public abstract class CollisionHandler<TYPE_ONE extends ICollideable, TYPE_TWO extends ICollideable> {
+public abstract class CollisionHandler<TYPE_ONE extends IMoveable, TYPE_TWO extends IMoveable> {
 
     private final Class<?> firstClass;
     private final Class<?> secondClass;
@@ -34,7 +34,7 @@ public abstract class CollisionHandler<TYPE_ONE extends ICollideable, TYPE_TWO e
      * @param collideable0 The first collideable to check
      * @param collideable1 The second collideable to check
      */
-    public void checkAndHandleCollision(GameState state, ICollideable collideable0, ICollideable collideable1) {
+    public void checkAndHandleCollision(GameState state, IMoveable collideable0, IMoveable collideable1) {
         TYPE_ONE firstParameter = null;
         TYPE_TWO secondParameter = null;
 

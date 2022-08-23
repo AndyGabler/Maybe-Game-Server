@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author Andronikus
  */
-public interface IMoveable extends ICollideable {
+public interface IMoveable extends Serializable {
 
     /**
      * Set ID of the moveable.
@@ -57,4 +57,39 @@ public interface IMoveable extends ICollideable {
      * @param angle The angle at the angle changes each tick
      */
     void setDirectionTickDelta(double angle);
+
+    /**
+     * Get hitbox X.
+     *
+     * @return The X
+     */
+    long getBoxX();
+
+    /**
+     * Get hitbox Y.
+     *
+     * @return The Y
+     */
+    long getBoxY();
+
+    /**
+     * Get hitbox width.
+     *
+     * @return The width
+     */
+    int getBoxWidth();
+
+    /**
+     * Get hitbox height.
+     *
+     * @return The height
+     */
+    int getBoxHeight();
+
+    /**
+     * Angle at which the hitbox is tilted.
+     *
+     * @return The tilt angle
+     */
+    double getTilt();
 }

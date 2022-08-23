@@ -3,7 +3,7 @@ package com.andronikus.gameserver.engine;
 import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
-import com.andronikus.game.model.server.ICollideable;
+import com.andronikus.game.model.server.IMoveable;
 import com.andronikus.game.model.server.MicroBlackHole;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
@@ -297,12 +297,12 @@ public class ServerEngine {
 
         // Check for collisions
         if (isCollisionEnabled()) {
-            final ArrayList<ICollideable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
+            final ArrayList<IMoveable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
             final int collideablesSize = collideablesCopy.size();
             for (int index = 0; index < collideablesSize - 1; index++) {
                 for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
-                    final ICollideable collideable0 = collideablesCopy.get(index);
-                    final ICollideable collideable1 = collideablesCopy.get(innerIndex);
+                    final IMoveable collideable0 = collideablesCopy.get(index);
+                    final IMoveable collideable1 = collideablesCopy.get(innerIndex);
 
                     collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
                 }

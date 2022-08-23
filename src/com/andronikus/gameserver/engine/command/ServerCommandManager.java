@@ -13,7 +13,9 @@ import com.andronikus.gameserver.engine.command.processor.EnableCollisionCommand
 import com.andronikus.gameserver.engine.command.processor.EnableMovementCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.EnableSpawningCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.EnableTickCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.MoveCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.RespawnCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.SetVelocityCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.SpawnEntityCommandProcessor;
 import lombok.Getter;
 
@@ -60,6 +62,8 @@ public class ServerCommandManager {
         commandProcessorMap.put("RESPAWN", new RespawnCommandProcessor(this));
         commandProcessorMap.put("SPAWN", new SpawnEntityCommandProcessor(this));
         commandProcessorMap.put("DESTROY", new DestroyCommandProcessor(this));
+        commandProcessorMap.put("MOVE", new MoveCommandProcessor(this));
+        commandProcessorMap.put("SETVEL", new SetVelocityCommandProcessor(this));
     }
 
     /**

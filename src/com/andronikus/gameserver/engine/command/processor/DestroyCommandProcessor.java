@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.logging.Logger;
 
 /**
  * Command processor for the destroy entity command.
@@ -22,8 +21,6 @@ import java.util.logging.Logger;
  * @author Andronikus
  */
 public class DestroyCommandProcessor extends AbstractCommandProcessor {
-
-    private static final Logger LOGGER = Logger.getLogger("DestroyCommandProcessor");
     private final Map<String, BiConsumer<GameState, Long>> entityTypeToDestroyerMap;
 
     public DestroyCommandProcessor(ServerCommandManager aCommandManager) {
@@ -77,8 +74,7 @@ public class DestroyCommandProcessor extends AbstractCommandProcessor {
     @Override
     protected void doProcess(EngineCommand command, GameState state, List<String> parameters) {
         if (parameters.size() != 2) {
-            LOGGER.warning("Failed to process command " + command.getId() + " since parameter size was incorrect (expected 2 got " + parameters.size() + ")");
-            return;
+            throw new CommandInputFailException("Parameter size was incorrect (expected 2 got " + parameters.size() + ")");
         }
 
         final String entityType = parameters.get(0);
