@@ -68,7 +68,7 @@ public class MoveCommandProcessor extends AbstractCommandProcessor {
          */
         final int parameterSize = parameters.size();
         if (parameterSize != 4 && parameterSize != 5) {
-            throw new CommandInputFailException("Parameter size was incorrect (expected 4 or 5 got " + parameters.size() + ")");
+            throw new CommandInputFailException("Parameter size was incorrect (expected 4 or 5 got " + parameterSize + ")");
         }
 
         final String paramEntityType = parameters.get(0);
@@ -125,6 +125,13 @@ public class MoveCommandProcessor extends AbstractCommandProcessor {
         entity.setYPosition(targetY);
     }
 
+    /**
+     * Parse long and stop command if value is incorrect.
+     *
+     * @param value The value
+     * @param significance What the value represents
+     * @return The long
+     */
     private long parseLong(String value, String significance) {
         try {
             return Long.parseLong(value);
