@@ -8,6 +8,7 @@ import com.andronikus.game.model.server.MicroBlackHole;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
 import com.andronikus.game.model.server.Snake;
+import com.andronikus.game.model.server.debug.ServerDebugSettings;
 import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
 import com.andronikus.gameserver.engine.blackhole.BlackHoleManager;
 import com.andronikus.gameserver.engine.collision.CollisionHandler;
@@ -42,6 +43,7 @@ public class ServerEngine {
 
     private final Consumer<GameState> gameStateCalculationCallback;
     private volatile ArrayList<CollisionHandler> collisionHandlers = new ArrayList<>();
+    private volatile ArrayList<CollisionHandler> debugCollisionHandlers = new ArrayList<>();
     private GameState gameState;
     private final ServerTimeManager timer;
     private final ConcurrentInputManager inputManager;
@@ -54,8 +56,8 @@ public class ServerEngine {
     private final RandomInboundsSpawner inboundsObjectSpawner = new RandomInboundsSpawner();
     private final AsteroidSplitter asteroidSplitter = new AsteroidSplitter();
     private final SnakeTargetingHelper snakeTargetingHelper = new SnakeTargetingHelper();
-    private final BlackHoleManager blackHoleManager = new BlackHoleManager();
-    private final PortalManager portalManager = new PortalManager();
+    private final BlackHoleManager blackHoleManager = new BlackHoleManager(this);
+    private final PortalManager portalManager = new PortalManager(this);
 
     /**
      * Instantiate engine for the server.
@@ -85,6 +87,14 @@ public class ServerEngine {
     private void calculateNextGameState() {
         commandManager.transferCommands(gameState, commandTransferQueue);
         commandManager.processCommands(gameState);
+        if (isDebugMode()) {
+            gameState
+                .getDebugSettings()
+                .getPlayerCollisionFlags()
+                .removeIf(ack ->
+                    ack.getGameStateVersion() + ScalableBalanceConstants.COLLISION_FLAG_LIFE_SPAN_TICKS < gameState.getVersion()
+                );
+        }
 
         // Get rid of lasers if they are beyond the border and will not impact anything
         gameState.getLasers().removeIf(laser -> {
@@ -303,8 +313,12 @@ public class ServerEngine {
                 for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
                     final IMoveable collideable0 = collideablesCopy.get(index);
                     final IMoveable collideable1 = collideablesCopy.get(innerIndex);
-
-                    collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                    if (isCollisionEnabled()) {
+                        collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                    }
+                    if (isDebugMode()) {
+                        debugCollisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                    }
                 }
             }
         }
@@ -328,6 +342,9 @@ public class ServerEngine {
         collisionHandlers.add(new SnakePlayerCollisionHandler());
         collisionHandlers.add(new PlayerPortalCollisionHandler());
         this.collisionHandlers = collisionHandlers;
+
+        final ArrayList<CollisionHandler> debugCollisionHandlers = new ArrayList<>();
+        this.debugCollisionHandlers = debugCollisionHandlers;
         timer.start();
         timer.startTimer();
     }
@@ -409,6 +426,10 @@ public class ServerEngine {
      */
     public void setDebugMode(boolean debugMode) {
         gameState.setServerDebugMode(debugMode);
+
+        if (gameState.isServerDebugMode() && gameState.getDebugSettings() == null) {
+            gameState.setDebugSettings(new ServerDebugSettings());
+        }
     }
 
     /**
@@ -464,7 +485,7 @@ public class ServerEngine {
      *
      * @return If enabled
      */
-    private boolean isSpawningEnabled() {
+    public boolean isSpawningEnabled() {
         return gameState.isTickEnabled() && gameState.isSpawningEnabled();
     }
 }

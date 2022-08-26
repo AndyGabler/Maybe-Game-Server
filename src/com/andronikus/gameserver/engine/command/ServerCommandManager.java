@@ -1,6 +1,6 @@
 package com.andronikus.gameserver.engine.command;
 
-import com.andronikus.game.model.server.CommandAcknowledgement;
+import com.andronikus.game.model.server.debug.CommandAcknowledgement;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.gameserver.engine.command.processor.AbstractCommandProcessor;
@@ -89,12 +89,12 @@ public class ServerCommandManager {
         acknowledgedCommands.addAll(newCommands);
 
         // For the acknowledged commands, let the clients know
-        gameState.getCommandAcknowledgements().clear();
+        gameState.getDebugSettings().getCommandAcknowledgements().clear();
         acknowledgedCommands.forEach(acknowledgedCommand -> {
             final CommandAcknowledgement gameStateAck = new CommandAcknowledgement();
             gameStateAck.setCommandId(acknowledgedCommand.getCommandId());
             gameStateAck.setSessionId(acknowledgedCommand.getSession().getId());
-            gameState.getCommandAcknowledgements().add(gameStateAck);
+            gameState.getDebugSettings().getCommandAcknowledgements().add(gameStateAck);
         });
     }
 

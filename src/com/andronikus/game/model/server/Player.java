@@ -99,6 +99,15 @@ public class Player implements IMoveable {
         // can't set player ID
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Deprecated
+    public long getMoveableId() {
+        return 0L;
+    }
+
     @Override
     public void setXPosition(long x) {
         this.x = x;
@@ -127,5 +136,13 @@ public class Player implements IMoveable {
     @Override
     public void setDirectionTickDelta(double angle) {
         // Nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String moveableTag() {
+        return "PLAYER";
     }
 }
