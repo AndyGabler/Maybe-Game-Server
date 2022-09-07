@@ -58,9 +58,14 @@ public abstract class CollisionHandler<TYPE_ONE extends IMoveable, TYPE_TWO exte
             return;
         }
 
+        // Stored X,Y coordinates are at the center, CollisionUtil likes corner points
+        final long leftCornerX0 = firstParameter.getBoxX() - (firstParameter.getBoxWidth() / 2);
+        final long leftCornerY0 = firstParameter.getBoxY() - (firstParameter.getBoxHeight() / 2);
+        final long leftCornerX1 = secondParameter.getBoxX() - (secondParameter.getBoxWidth() / 2);
+        final long leftCornerY1 = secondParameter.getBoxY() - (secondParameter.getBoxHeight() / 2);
         if (CollisionUtil.rectangularHitboxesCollide(
-            firstParameter.getBoxX(), firstParameter.getBoxY(), firstParameter.getBoxWidth(), firstParameter.getBoxHeight(), firstParameter.getTilt(),
-            secondParameter.getBoxX(), secondParameter.getBoxY(), secondParameter.getBoxWidth(), secondParameter.getBoxHeight(), secondParameter.getTilt()
+            leftCornerX0, leftCornerY0, firstParameter.getBoxWidth(), firstParameter.getBoxHeight(), firstParameter.getTilt(),
+            leftCornerX1, leftCornerY1, secondParameter.getBoxWidth(), secondParameter.getBoxHeight(), secondParameter.getTilt()
         )) {
             handleCollision(state, firstParameter, secondParameter);
         }
