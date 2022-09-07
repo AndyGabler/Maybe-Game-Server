@@ -18,6 +18,7 @@ import com.andronikus.gameserver.engine.collision.PlayerAsteroidCollisionHandler
 import com.andronikus.gameserver.engine.collision.PlayerPortalCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakeLaserCollisionHandler;
 import com.andronikus.gameserver.engine.collision.SnakePlayerCollisionHandler;
+import com.andronikus.gameserver.engine.collision.debug.FlagCreatingCollisionHandler;
 import com.andronikus.gameserver.engine.command.CommandEngineTransferQueue;
 import com.andronikus.gameserver.engine.command.ServerCommandManager;
 import com.andronikus.gameserver.engine.input.InputSetHandler;
@@ -306,19 +307,17 @@ public class ServerEngine {
         gameState.getCollideables().addAll(newAsteroids);
 
         // Check for collisions
-        if (isCollisionEnabled()) {
-            final ArrayList<IMoveable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
-            final int collideablesSize = collideablesCopy.size();
-            for (int index = 0; index < collideablesSize - 1; index++) {
-                for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
-                    final IMoveable collideable0 = collideablesCopy.get(index);
-                    final IMoveable collideable1 = collideablesCopy.get(innerIndex);
-                    if (isCollisionEnabled()) {
-                        collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
-                    }
-                    if (isDebugMode()) {
-                        debugCollisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
-                    }
+        final ArrayList<IMoveable> collideablesCopy = new ArrayList<>(gameState.getCollideables());
+        final int collideablesSize = collideablesCopy.size();
+        for (int index = 0; index < collideablesSize - 1; index++) {
+            for (int innerIndex = 1; innerIndex < collideablesSize; innerIndex++) {
+                final IMoveable collideable0 = collideablesCopy.get(index);
+                final IMoveable collideable1 = collideablesCopy.get(innerIndex);
+                if (isCollisionEnabled()) {
+                    collisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
+                }
+                if (isDebugMode()) {
+                    debugCollisionHandlers.forEach(collisionHandler -> collisionHandler.checkAndHandleCollision(gameState, collideable0, collideable1));
                 }
             }
         }
@@ -344,6 +343,7 @@ public class ServerEngine {
         this.collisionHandlers = collisionHandlers;
 
         final ArrayList<CollisionHandler> debugCollisionHandlers = new ArrayList<>();
+        debugCollisionHandlers.add(new FlagCreatingCollisionHandler<>(Asteroid.class));
         this.debugCollisionHandlers = debugCollisionHandlers;
         timer.start();
         timer.startTimer();

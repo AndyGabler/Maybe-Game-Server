@@ -22,7 +22,10 @@ public class FlagCreatingCollisionHandler<MOVEABLE extends IMoveable> extends Co
      */
     @Override
     protected boolean collisionRelevant(GameState state, Player player, MOVEABLE moveable) {
-        return !player.isDead();
+        return !player.isDead() && state.getDebugSettings().getPlayerCollisionFlags().stream().noneMatch(flag ->
+            flag.getSessionId().equalsIgnoreCase(player.getSessionId()) && flag.getCollisionId() == moveable.getMoveableId() &&
+            flag.getCollisionType().equals(moveable.moveableTag())
+        );
     }
 
     /**
