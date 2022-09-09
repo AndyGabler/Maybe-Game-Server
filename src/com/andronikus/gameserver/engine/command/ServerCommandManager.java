@@ -15,6 +15,7 @@ import com.andronikus.gameserver.engine.command.processor.EnableSpawningCommandP
 import com.andronikus.gameserver.engine.command.processor.EnableTickCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.MoveCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.RespawnCommandProcessor;
+import com.andronikus.gameserver.engine.command.processor.SetAngleCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.SetVelocityCommandProcessor;
 import com.andronikus.gameserver.engine.command.processor.SpawnEntityCommandProcessor;
 import lombok.Getter;
@@ -64,6 +65,7 @@ public class ServerCommandManager {
         commandProcessorMap.put("DESTROY", new DestroyCommandProcessor(this));
         commandProcessorMap.put("MOVE", new MoveCommandProcessor(this));
         commandProcessorMap.put("SETVEL", new SetVelocityCommandProcessor(this));
+        commandProcessorMap.put("SETANGLE", new SetAngleCommandProcessor(this));
     }
 
     /**
