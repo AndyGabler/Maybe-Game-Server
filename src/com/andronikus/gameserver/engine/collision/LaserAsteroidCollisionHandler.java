@@ -21,7 +21,7 @@ public class LaserAsteroidCollisionHandler extends CollisionHandler<Laser, Aster
      */
     @Override
     protected boolean collisionRelevant(GameState state, Laser laser, Asteroid asteroid) {
-        return asteroid.getDurability() > 0 && (laser.getXVelocity() != 0 || laser.getYVelocity() != 0);
+        return asteroid.getDurability() > 0 && laser.isActive();
     }
 
     /**
@@ -31,6 +31,7 @@ public class LaserAsteroidCollisionHandler extends CollisionHandler<Laser, Aster
     protected void handleCollision(GameState state, Laser laser, Asteroid asteroid) {
         laser.setXVelocity(0);
         laser.setYVelocity(0);
+        laser.setActive(false);
 
         // TODO consider vectorizing
         asteroid.setDurability(asteroid.getDurability() - ScalableBalanceConstants.ASTEROID_LASER_DURABILITY_DAMAGE);

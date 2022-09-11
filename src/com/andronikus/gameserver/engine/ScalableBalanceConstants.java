@@ -204,4 +204,9 @@ public class ScalableBalanceConstants {
      * Chance that a portal/black hole despawn on each tick. Average of 7s of sticking around.
      */
     public static final double PORTAL_BLACK_HOLE_DESPAWN_CHANCE = 1.0 / 210.0;
+
+    /*
+     * Life span of a collision flag.
+     */
+    public static final long COLLISION_FLAG_LIFE_SPAN_TICKS = 5;
 }

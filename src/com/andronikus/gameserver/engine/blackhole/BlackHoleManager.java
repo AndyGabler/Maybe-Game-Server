@@ -3,6 +3,7 @@ package com.andronikus.gameserver.engine.blackhole;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.MicroBlackHole;
 import com.andronikus.gameserver.engine.ScalableBalanceConstants;
+import com.andronikus.gameserver.engine.ServerEngine;
 
 import java.util.Random;
 
@@ -13,18 +14,26 @@ import java.util.Random;
  */
 public class BlackHoleManager {
 
+    private final ServerEngine engine;
     private final Random random;
 
-    public BlackHoleManager() {
-        this(new Random());
+    /**
+     * Instantiate a manager for a black hole.
+     *
+     * @param anEngine The engine
+     */
+    public BlackHoleManager(ServerEngine anEngine) {
+        this(anEngine, new Random());
     }
 
     /**
      * Instantiate a manager for a black hole.
      *
+     * @param anEngine The engine
      * @param aRandom Supplier of random values
      */
-    public BlackHoleManager(Random aRandom) {
+    public BlackHoleManager(ServerEngine anEngine, Random aRandom) {
+        this.engine = anEngine;
         this.random = aRandom;
     }
 
@@ -65,6 +74,6 @@ public class BlackHoleManager {
      * @return If removal should occur
      */
     private boolean considerForRemoval() {
-        return random.nextDouble() <= ScalableBalanceConstants.PORTAL_BLACK_HOLE_DESPAWN_CHANCE;
+        return engine.isSpawningEnabled() && random.nextDouble() <= ScalableBalanceConstants.PORTAL_BLACK_HOLE_DESPAWN_CHANCE;
     }
 }

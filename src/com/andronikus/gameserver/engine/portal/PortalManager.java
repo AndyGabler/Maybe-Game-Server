@@ -4,6 +4,7 @@ import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
 import com.andronikus.gameserver.engine.ScalableBalanceConstants;
+import com.andronikus.gameserver.engine.ServerEngine;
 
 import java.util.Random;
 
@@ -14,18 +15,26 @@ import java.util.Random;
  */
 public class PortalManager {
 
+    private final ServerEngine engine;
     private final Random random;
 
-    public PortalManager() {
-        this(new Random());
+    /**
+     * Instantiate a manager for a portal.
+     *
+     * @param anEngine The engine
+     */
+    public PortalManager(ServerEngine anEngine) {
+        this(anEngine, new Random());
     }
 
     /**
      * Instantiate a manager for a portal.
      *
+     * @param anEngine The engine
      * @param aRandom Supplier of random values
      */
-    public PortalManager(Random aRandom) {
+    public PortalManager(ServerEngine anEngine, Random aRandom) {
+        this.engine = anEngine;
         this.random = aRandom;
     }
 
@@ -87,6 +96,6 @@ public class PortalManager {
      * @return If removal should occur
      */
     private boolean considerForRemoval() {
-        return random.nextDouble() <= ScalableBalanceConstants.PORTAL_BLACK_HOLE_DESPAWN_CHANCE;
+        return engine.isSpawningEnabled() && random.nextDouble() <= ScalableBalanceConstants.PORTAL_BLACK_HOLE_DESPAWN_CHANCE;
     }
 }

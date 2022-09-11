@@ -24,8 +24,9 @@ public class PlayerAndLaserCollisionHandler extends CollisionHandler<Player, Las
     protected boolean collisionRelevant(GameState state, Player player, Laser laser) {
         return !player.isDead() &&
                player.getCollidedPortalId() == null &&
-               (laser.getXVelocity() != 0 || laser.getYVelocity() != 0) &&
-               !laser.getLoyalty().equals(player.getSessionId());
+               laser.isActive() &&
+               (laser.getLoyalty() == null ||
+                !laser.getLoyalty().equals(player.getSessionId()));
     }
 
     /**
@@ -35,6 +36,7 @@ public class PlayerAndLaserCollisionHandler extends CollisionHandler<Player, Las
     protected void handleCollision(GameState state, Player player, Laser laser) {
         laser.setXVelocity(0);
         laser.setYVelocity(0);
+        laser.setActive(false);
 
         boolean shieldDamage = DamageUtil.damagePlayer(player, ScalableBalanceConstants.LASER_DAMAGE, false);
         if (shieldDamage) {

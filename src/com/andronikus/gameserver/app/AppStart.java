@@ -25,6 +25,7 @@ public class AppStart {
     public static void main(String[] args) {
         final ApplicationOptions applicationOptions = new ApplicationOptions(args);
         final String authScheme = applicationOptions.getOption("authMethod", true, 1).get(0);
+        final boolean debugMode = Boolean.parseBoolean(applicationOptions.getOption("debugMode", false, 1).get(0));
         applicationOptions.checkUnusedOptions();
 
         IAuthenticationProvider authenticationProvider = null;
@@ -41,6 +42,7 @@ public class AppStart {
         ServletCertificateUtil.addSslToSystemProperties();
         final ResourceLock<HashMap<String, Session>> sessionManager = new ResourceLock<>(new HashMap<>());
         final GameServer server = new GameServer(sessionManager, authenticationProvider);
+        server.setDebugMode(debugMode);
         server.start();
     }
 }

@@ -7,6 +7,7 @@ import com.andronikus.gameserver.dhke.DhkeServlet;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.game.model.client.ClientRequest;
 import com.andronikus.game.model.server.GameState;
+import com.andronikus.gameserver.engine.command.CommandEngineTransferQueue;
 import com.gabler.udpmanager.ResourceLock;
 import com.gabler.udpmanager.server.IUdpServerConfiguration;
 import com.gabler.udpmanager.server.ServerClientCallback;
@@ -69,6 +70,7 @@ public class GameServer implements IUdpServerConfiguration {
         byteToClientRequestTransformer = aByteToClientRequestTransformer;
         sessionManager = aSessionManager;
         authenticationServlet = new AuthenticationServlet(aSessionManager, authenticationProvider);
+        engine.calculateInitialGameState();
     }
 
     /**
@@ -88,7 +90,6 @@ public class GameServer implements IUdpServerConfiguration {
         server.start();
         keyServlet.start();
         authenticationServlet.start();
-        engine.calculateInitialGameState();
         engine.start();
     }
 
@@ -147,6 +148,15 @@ public class GameServer implements IUdpServerConfiguration {
         if (request.getSequenceNumber() > session.getLastRecordedSequenceNumber() && request.getInputCodes() != null) {
             engine.addInputs(request.getInputCodes(), session);
             session.setLastRecordedSequenceNumber(request.getSequenceNumber());
+
+            if (engine.isDebugMode()) {
+                // TODO throttle for DDoS
+                final CommandEngineTransferQueue transferQueue = engine.getCommandTransferQueue();
+                request.getClientCommands().forEach(clientCommand -> transferQueue.takeNewClientCommand(clientCommand, session));
+                request.getCommandsToRemove().forEach(clientCommand -> transferQueue.retireClientCommand(clientCommand, session));
+            } else if (!request.getClientCommands().isEmpty()) {
+                LOGGER.severe("Server is not in debug mode but received a command from session " + session.getId() + " for user " + session.getUsername() + ".");
+            }
         }
     }
 
@@ -161,6 +171,15 @@ public class GameServer implements IUdpServerConfiguration {
         } else {
             LOGGER.warning(logHeader + "String message received. This is abnormal.");
         }
+    }
+
+    /**
+     * Set whether the server is in debug mode.
+     *
+     * @param debugMode If server is in debug mode
+     */
+    public void setDebugMode(boolean debugMode) {
+        engine.setDebugMode(debugMode);
     }
 
     /**
