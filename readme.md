@@ -1,9 +1,13 @@
-# Java Game Server
+# Space Game Server
 
-Game server for Java.
+Game server for the Space Game. Responsible for:
+ * Key Exchange
+ * Authentication
+ * Running the Game Engine
+ * Broadcasting GameState to Clients
 
-### Setup
+## Documentation
 
-1. Obtain server SSL password
-2. Save password to a file named "ssl-server-password.txt" under the "rsrc" directory
+[Run Guide](docs/runGuide.md)
 
+[Commands](docs/commands.md)
