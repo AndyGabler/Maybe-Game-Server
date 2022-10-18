@@ -14,7 +14,11 @@ import java.util.List;
 @Data
 public class ClientRequest implements Serializable {
     private long sequenceNumber = 0;
-    private List<String> inputCodes;
+    private String inputCode0;
+    private String inputCode1;
+    private String inputCode2;
+    private String inputCode3;
+    private String inputCode4;
     private String sessionToken;
     // TODO this will get you DDoSed
     private List<ClientCommand> clientCommands = new ArrayList<>();

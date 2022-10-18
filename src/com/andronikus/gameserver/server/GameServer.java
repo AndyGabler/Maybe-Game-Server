@@ -16,10 +16,13 @@ import lombok.SneakyThrows;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Game server. Manages security and framework for transmitting messages between a central game server and game client.
@@ -145,8 +148,21 @@ public class GameServer implements IUdpServerConfiguration {
             return;
         }
 
-        if (request.getSequenceNumber() > session.getLastRecordedSequenceNumber() && request.getInputCodes() != null) {
-            engine.addInputs(request.getInputCodes(), session);
+        if (
+            request.getSequenceNumber() > session.getLastRecordedSequenceNumber() &&
+            (request.getInputCode0() != null ||
+             request.getInputCode1() != null ||
+             request.getInputCode2() != null ||
+             request.getInputCode3() != null ||
+             request.getInputCode4() != null)
+        ) {
+            final ArrayList<String> inputCodes = new ArrayList<>();
+            inputCodes.add(request.getInputCode0());
+            inputCodes.add(request.getInputCode1());
+            inputCodes.add(request.getInputCode2());
+            inputCodes.add(request.getInputCode3());
+            inputCodes.add(request.getInputCode4());
+            engine.addInputs(inputCodes.stream().filter(Objects::nonNull).collect(Collectors.toList()), session);
             session.setLastRecordedSequenceNumber(request.getSequenceNumber());
 
             if (engine.isDebugMode()) {
