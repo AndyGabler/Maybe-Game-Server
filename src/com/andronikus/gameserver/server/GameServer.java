@@ -154,7 +154,8 @@ public class GameServer implements IUdpServerConfiguration {
              request.getInputCode1() != null ||
              request.getInputCode2() != null ||
              request.getInputCode3() != null ||
-             request.getInputCode4() != null)
+             request.getInputCode4() != null ||
+             (request.getClientCommands() != null && !request.getClientCommands().isEmpty()))
         ) {
             final ArrayList<String> inputCodes = new ArrayList<>();
             inputCodes.add(request.getInputCode0());
