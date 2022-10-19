@@ -30,10 +30,14 @@ import com.andronikus.gameserver.engine.spawning.RandomInboundsSpawner;
 import com.andronikus.gameserver.engine.spawning.RandomOutOfBoundsSpawner;
 import lombok.Getter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Engine for the server. Hook for all components that create some kind of event (IE client messages or ticks).
@@ -42,11 +46,15 @@ import java.util.function.Consumer;
  */
 public class ServerEngine {
 
-    private final Consumer<GameState> gameStateCalculationCallback;
+    private static final Logger LOGGER = Logger.getLogger("ServerEngine");
+
+    private final Consumer<GameStateBytesWrapper> gameStateBroadcastCallback;
     private volatile ArrayList<CollisionHandler> collisionHandlers = new ArrayList<>();
     private volatile ArrayList<CollisionHandler> debugCollisionHandlers = new ArrayList<>();
     private GameState gameState;
-    private final ServerTimeManager timer;
+    private GameStateBytesWrapper gameStateBytesPayload;
+    private final ServerTimeManager tickTimer;
+    private final ServerTimeManager broadcastTimer;
     private final ConcurrentInputManager inputManager;
     @Getter
     private final CommandEngineTransferQueue commandTransferQueue;
@@ -65,9 +73,10 @@ public class ServerEngine {
      *
      * @param aGameStateCalculationCallback Function to call when gamestate calculation is done
      */
-    public ServerEngine(Consumer<GameState> aGameStateCalculationCallback) {
-        gameStateCalculationCallback = aGameStateCalculationCallback;
-        timer = new ServerTimeManager(this, ScalableBalanceConstants.DEFAULT_TPS); // TODO non-static or different frame rate?
+    public ServerEngine(Consumer<GameStateBytesWrapper> aGameStateCalculationCallback) {
+        gameStateBroadcastCallback = aGameStateCalculationCallback;
+        tickTimer = new ServerTimeManager(this, ServerEngine::tick, "tick", ScalableBalanceConstants.DEFAULT_TPS); // TODO non-static or different frame rate?
+        broadcastTimer = new ServerTimeManager(this, ServerEngine::performGameStateBroadcast, "broadcast", ScalableBalanceConstants.BROADCAST_RATE); // TODO non-static or different frame rate?
         inputManager = new ConcurrentInputManager();
         inputHandler = new InputSetHandler();
         commandTransferQueue = new CommandEngineTransferQueue();
@@ -79,13 +88,35 @@ public class ServerEngine {
      */
     public void tick() {
         calculateNextGameState();
-        gameStateCalculationCallback.accept(gameState);
+
+        try {
+            final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            final ObjectOutputStream outputStream = new ObjectOutputStream(byteStream);
+            outputStream.writeObject(gameState);
+            byte[] gameStateBytes = byteStream.toByteArray();
+
+            final GameStateBytesWrapper wrapper = new GameStateBytesWrapper();
+            wrapper.setPayload(gameStateBytes);
+            gameStateBytesPayload = wrapper;
+        } catch (Exception exception) {
+            LOGGER.log(Level.SEVERE, "Failed to serialize game state to bytes.", exception);
+        }
+    }
+
+    /**
+     * Perform broadcast of the game state.
+     */
+    public void performGameStateBroadcast() {
+        if (gameStateBytesPayload != null && gameStateBytesPayload.getPayload() != null) {
+            gameStateBroadcastCallback.accept(gameStateBytesPayload);
+        }
     }
 
     /**
      * Calculate the next game state.
      */
     private void calculateNextGameState() {
+
         commandManager.transferCommands(gameState, commandTransferQueue);
         commandManager.processCommands(gameState);
         if (isDebugMode()) {
@@ -345,8 +376,10 @@ public class ServerEngine {
         final ArrayList<CollisionHandler> debugCollisionHandlers = new ArrayList<>();
         debugCollisionHandlers.add(new FlagCreatingCollisionHandler<>(Asteroid.class));
         this.debugCollisionHandlers = debugCollisionHandlers;
-        timer.start();
-        timer.startTimer();
+        tickTimer.start();
+        tickTimer.startTimer();
+        broadcastTimer.start();
+        broadcastTimer.startTimer();
     }
 
     /**
@@ -445,21 +478,24 @@ public class ServerEngine {
      * Pause the engine.
      */
     public void pauseEngine() {
-        timer.stopTimer();
+        tickTimer.stopTimer();
+        broadcastTimer.stopTimer();
     }
 
     /**
      * Resume the engine.
      */
     public void resumeEngine() {
-        timer.startTimer();
+        tickTimer.startTimer();
+        broadcastTimer.startTimer();
     }
 
     /**
      * Kill the engine.
      */
     public void kill() {
-        timer.kill();
+        broadcastTimer.kill();
+        tickTimer.kill();
     }
 
     /**

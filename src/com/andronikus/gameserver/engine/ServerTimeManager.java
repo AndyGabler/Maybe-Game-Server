@@ -1,6 +1,7 @@
 package com.andronikus.gameserver.engine;
 
 import java.util.ConcurrentModificationException;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -13,26 +14,37 @@ public class ServerTimeManager extends Thread {
     private static final Logger LOGGER = Logger.getLogger("ServerTimeManager");
 
     private final ServerEngine engine;
+    private final Consumer<ServerEngine> engineFunction;
+    private final String functionName;
     private volatile boolean running;
     private volatile boolean alive;
     private volatile long startTime;
     private final long tickDelay;
-    private volatile long tickCount;
-    private volatile long tickDiscrepancy;
+    private volatile long executionCount;
+    private volatile long executionDiscrepancy;
 
     /**
      * Instantiate a time manager for the server.
      *
-     * @param anEngine The engine ticks are being handled for
+     * @param anEngine The engine to act on
+     * @param anEngineFunction Function on the engine to call
+     * @param aFunctionName Name of the function
      * @param ticksPerSecond The amount of ticks per second
      */
-    public ServerTimeManager(ServerEngine anEngine, long ticksPerSecond) {
+    public ServerTimeManager(
+        ServerEngine anEngine,
+        Consumer<ServerEngine> anEngineFunction,
+        String aFunctionName,
+        long ticksPerSecond
+    ) {
         engine = anEngine;
+        engineFunction = anEngineFunction;
+        functionName = aFunctionName;
         running = false;
         alive = true;
         tickDelay = 1000 / ticksPerSecond;
-        tickCount = 0;
-        tickDiscrepancy = 0;
+        executionCount = 0;
+        executionDiscrepancy = 0;
     }
 
     /**
@@ -42,7 +54,7 @@ public class ServerTimeManager extends Thread {
         if (running) {
             throw new ConcurrentModificationException("Timer cannot be started when running.");
         }
-        tickCount = 0;
+        executionCount = 0;
         startTime = System.currentTimeMillis();
         running = true;
     }
@@ -66,20 +78,20 @@ public class ServerTimeManager extends Thread {
             if (running) {
                 final long timeStamp = System.currentTimeMillis();
                 final long deltaTime = timeStamp - startTime;
-                final long expectedTickCount = deltaTime / tickDelay;
+                final long executionCount = deltaTime / tickDelay;
 
-                if (expectedTickCount > tickCount) {
-                    engine.tick();
-                    tickCount = tickCount + 1;
+                if (executionCount > this.executionCount) {
+                    engineFunction.accept(engine);
+                    this.executionCount = this.executionCount + 1;
                 }
 
-                final long newTickDiscrepancy = expectedTickCount - tickCount;
-                if (newTickDiscrepancy  > tickDiscrepancy) {
-                    LOGGER.warning("Server is a few ticks behind. Latest tick discrepancy of "
-                            + tickDiscrepancy + " is now " + newTickDiscrepancy + ". Expected " + expectedTickCount +
-                            " ticks, only performed " + tickCount + ".");
+                final long newExecutionDiscrepancy = executionCount - this.executionCount;
+                if (newExecutionDiscrepancy  > executionDiscrepancy) {
+                    LOGGER.warning("Server is a few " + functionName + "s behind. Latest " + functionName +
+                            " discrepancy of " + executionDiscrepancy + " is now " + newExecutionDiscrepancy + ". Expected "
+                            + executionCount + " " + functionName + "s, only performed " + this.executionCount + ".");
                 }
-                tickDiscrepancy = newTickDiscrepancy;
+                executionDiscrepancy = newExecutionDiscrepancy;
             }
         }
     }

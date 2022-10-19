@@ -4,9 +4,9 @@ import com.andronikus.gameserver.auth.AuthenticationServlet;
 import com.andronikus.gameserver.auth.IAuthenticationProvider;
 import com.andronikus.gameserver.auth.Session;
 import com.andronikus.gameserver.dhke.DhkeServlet;
+import com.andronikus.gameserver.engine.GameStateBytesWrapper;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.game.model.client.ClientRequest;
-import com.andronikus.game.model.server.GameState;
 import com.andronikus.gameserver.engine.command.CommandEngineTransferQueue;
 import com.gabler.udpmanager.ResourceLock;
 import com.gabler.udpmanager.server.IUdpServerConfiguration;
@@ -14,8 +14,6 @@ import com.gabler.udpmanager.server.ServerClientCallback;
 import com.gabler.udpmanager.server.UdpServer;
 import lombok.SneakyThrows;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -69,7 +67,7 @@ public class GameServer implements IUdpServerConfiguration {
         server = new UdpServer(GAME_SERVER_PORT, GAME_SERVER_THREAD_POOL_SIZE);
         server.setConfiguration(this);
         keyServlet = new DhkeServlet(this::addClientKeyToServer);
-        engine = new ServerEngine(this::broadcastGameState);
+        engine = new ServerEngine(this::broadcastGameStateBytes);
         byteToClientRequestTransformer = aByteToClientRequestTransformer;
         sessionManager = aSessionManager;
         authenticationServlet = new AuthenticationServlet(aSessionManager, authenticationProvider);
@@ -99,17 +97,12 @@ public class GameServer implements IUdpServerConfiguration {
     /**
      * Broadcast a game state to all clients.
      *
-     * @param gameState The game state
+     * @param bytesWrapper The wrapper for the game state in bytes
      */
-    public void broadcastGameState(GameState gameState) {
+    public void broadcastGameStateBytes(GameStateBytesWrapper bytesWrapper) {
 
         try {
-            final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            final ObjectOutputStream outputStream = new ObjectOutputStream(byteStream);
-            outputStream.writeObject(gameState);
-            byte[] payload = byteStream.toByteArray();
-
-            server.clientBroadcast(payload);
+            server.clientBroadcast(bytesWrapper.getPayload());
         } catch (Exception exception) {
             LOGGER.log(Level.SEVERE, "Server gamestate broadcast failed.", exception);
         }

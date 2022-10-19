@@ -52,9 +52,10 @@ public class ScalableBalanceConstants {
     public static final long BORDER_Y_COORDINATE = 8035;
 
     /*
-     * Engine TPS.
+     * Engine rates.
      */
     public static final int DEFAULT_TPS = 30;
+    public static final int BROADCAST_RATE = 30;
 
     /*
      * Player health numbers.
