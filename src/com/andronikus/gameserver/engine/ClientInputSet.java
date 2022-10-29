@@ -14,5 +14,5 @@ import java.util.List;
 public class ClientInputSet {
 
     private Session session;
-    private List<String> inputCodes;
+    private List<ClientInput> inputs;
 }

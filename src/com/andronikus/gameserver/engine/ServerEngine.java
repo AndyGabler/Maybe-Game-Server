@@ -1,5 +1,6 @@
 package com.andronikus.gameserver.engine;
 
+import com.andronikus.game.model.client.InputRequest;
 import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
@@ -9,6 +10,7 @@ import com.andronikus.game.model.server.Player;
 import com.andronikus.game.model.server.Portal;
 import com.andronikus.game.model.server.Snake;
 import com.andronikus.game.model.server.debug.ServerDebugSettings;
+import com.andronikus.game.model.server.input.InputAcknowledgement;
 import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
 import com.andronikus.gameserver.engine.blackhole.BlackHoleManager;
 import com.andronikus.gameserver.engine.collision.CollisionHandler;
@@ -38,6 +40,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Engine for the server. Hook for all components that create some kind of event (IE client messages or ticks).
@@ -56,10 +59,12 @@ public class ServerEngine {
     private final ServerTimeManager tickTimer;
     private final ServerTimeManager broadcastTimer;
     private final ConcurrentInputManager inputManager;
+    private final InputSetHandler inputHandler;
     @Getter
     private final CommandEngineTransferQueue commandTransferQueue;
     private final ServerCommandManager commandManager;
-    private final InputSetHandler inputHandler;
+    private final InputAcknowledgementManager inputAckManager;
+
     private final ColorAssigner colorAssigner = new ColorAssigner();
     private final RandomOutOfBoundsSpawner outOfBoundsSpawner = new RandomOutOfBoundsSpawner();
     private final RandomInboundsSpawner inboundsObjectSpawner = new RandomInboundsSpawner();
@@ -81,6 +86,7 @@ public class ServerEngine {
         inputHandler = new InputSetHandler();
         commandTransferQueue = new CommandEngineTransferQueue();
         commandManager = new ServerCommandManager(this);
+        inputAckManager = new InputAcknowledgementManager();
     }
 
     /**
@@ -198,9 +204,17 @@ public class ServerEngine {
         });
 
         // Handle player inputs
-        final List<ClientInputSet> inputs = inputManager.getUnhandledCodes();
-        inputs.forEach(input -> {
-            inputHandler.putInputSetOnGameState(input, gameState);
+        final List<ClientInputSet> inputSets = inputManager.getUnhandledCodes();
+        inputSets.forEach(inputSet -> {
+            inputHandler.putInputSetOnGameState(inputSet, gameState);
+
+            inputSet.getInputs().forEach(input -> {
+                final InputAcknowledgement acknowledgement = new InputAcknowledgement();
+                acknowledgement.setSessionId(inputSet.getSession().getId());
+                acknowledgement.setCreatedGameStateVersion(gameState.getVersion());
+                acknowledgement.setInputId(input.getId());
+                inputAckManager.registerAck(acknowledgement);
+            });
         });
 
         // TODO these engine steps will eventually need to be better managed
@@ -357,6 +371,11 @@ public class ServerEngine {
             outOfBoundsSpawner.doRandomSpawns(gameState);
             inboundsObjectSpawner.doRandomSpawns(gameState);
         }
+
+        gameState.setInputAcknowledgements(new ArrayList<>(ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_GAMESTATE_LIMIT));
+        gameState.getInputAcknowledgements().addAll(inputAckManager.pollForAcks(ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_GAMESTATE_LIMIT, gameState.getVersion()));
+
+        inputAckManager.purgeExpiredAcks(gameState.getVersion(), ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_LIFE_SPAN_TICKS);
         gameState.setVersion(gameState.getVersion() + 1);
     }
 
@@ -388,11 +407,16 @@ public class ServerEngine {
      * @param codes The input codes
      * @param session The session associated with the input
      */
-    public void addInputs(List<String> codes, Session session) {
-        final ClientInputSet input = new ClientInputSet();
-        input.setSession(session);
-        input.setInputCodes(codes);
-        inputManager.addInput(input);
+    public void addInputs(List<InputRequest> codes, Session session) {
+        final ClientInputSet inputSet = new ClientInputSet();
+        final List<ClientInput> inputs = codes
+            .stream()
+            .filter(code -> !inputAckManager.queueDuplicateAckResend(code, session.getId()))
+            .map(code -> new ClientInput(code.getInputCode(), code.isAckRequired(), code.getInputId()))
+            .collect(Collectors.toList());
+        inputSet.setSession(session);
+        inputSet.setInputs(inputs);
+        inputManager.addInput(inputSet);
     }
 
     /**

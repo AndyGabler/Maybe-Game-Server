@@ -116,9 +116,9 @@ public class InputSetHandlerTest {
      */
     private ClientInputSet createSingleInputInputSet(String input, Session session) {
         final ClientInputSet inputSet = new ClientInputSet();
-        inputSet.setInputCodes(new ArrayList<>());
+        inputSet.setInputs(new ArrayList<>());
         inputSet.setSession(session);
-        inputSet.getInputCodes().add(input);
+        inputSet.getInputs().add(input);
         return inputSet;
     }
 }

@@ -210,4 +210,11 @@ public class ScalableBalanceConstants {
      * Life span of a collision flag.
      */
     public static final long COLLISION_FLAG_LIFE_SPAN_TICKS = 5;
+
+    /*
+     * Input Acknowledgement properties
+     */
+    public static final long INPUT_ACKNOWLEDGEMENT_LIFE_SPAN_TICKS = ScalableBalanceConstants.DEFAULT_TPS * 2;
+    // With 6 players at 5 inputs per tick, this would cover one whole tick of all inputting.
+    public static final int INPUT_ACKNOWLEDGEMENT_GAMESTATE_LIMIT = 30;
 }

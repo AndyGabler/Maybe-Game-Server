@@ -1,6 +1,7 @@
 package com.andronikus.game.model.server;
 
 import com.andronikus.game.model.server.debug.ServerDebugSettings;
+import com.andronikus.game.model.server.input.InputAcknowledgement;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -32,4 +33,7 @@ public class GameState implements Serializable {
     private boolean collisionsEnabled = true;
     private boolean movementEnabled = true;
     private boolean spawningEnabled = true;
+
+    // Input related
+    private ArrayList<InputAcknowledgement> inputAcknowledgements = new ArrayList<>();
 }
