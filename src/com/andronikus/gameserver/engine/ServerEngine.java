@@ -413,7 +413,12 @@ public class ServerEngine {
         final List<ClientInput> inputs = codes
             .stream()
             .filter(code -> !inputAckManager.queueDuplicateAckResend(code, session.getId()))
-            .map(code -> new ClientInput(code.getInputCode(), code.isAckRequired(), code.getInputId()))
+            .map(code -> new ClientInput(
+                    code.getInputCode(),
+                    code.isAckRequired(),
+                    code.getInputId() != null ? code.getInputId() : -1
+                )
+            )
             .collect(Collectors.toList());
         inputSet.setSession(session);
         inputSet.setInputs(inputs);
