@@ -1,7 +1,9 @@
 package com.andronikus.gameserver.engine;
 
+import com.andronikus.game.model.client.InputPurgeRequest;
 import com.andronikus.game.model.client.InputRequest;
 import com.andronikus.game.model.server.input.InputAcknowledgement;
+import com.andronikus.gameserver.auth.Session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ public class InputAcknowledgementManager {
      */
     private final ConcurrentHashMap<String, ConcurrentHashMap<Long, Byte>> processedCache = new ConcurrentHashMap<>();
     private final ArrayList<InputAcknowledgement> acksForSend = new ArrayList<>();
+    private final ConcurrentLinkedQueue<InputPurge> purgeQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<InputAcknowledgement> ackRenewalQueue = new ConcurrentLinkedQueue<>();
 
     public void registerAck(InputAcknowledgement acknowledgement) {
@@ -26,11 +29,24 @@ public class InputAcknowledgementManager {
         acksForSend.add(acknowledgement);
     }
 
-    public void purgeExpiredAcks(long gameStateVersion, long retentionTicks) {
+    public void purgeExpiredAndRequestedAcks(long gameStateVersion, long retentionTicks) {
         acksForSend.removeIf(ack -> {
             final long ackAgeTicks = gameStateVersion - ack.getCreatedGameStateVersion();
             return ackAgeTicks > retentionTicks;
         });
+        // TODO techically might be a good idea to throttle the purge processing?
+        final ArrayList<InputPurge> purgesToProcess = new ArrayList<>();
+        InputPurge purge = purgeQueue.poll();
+        while (purge != null) {
+            purgesToProcess.add(purge);
+            purge = purgeQueue.poll();
+        }
+        acksForSend.removeIf(ack ->
+            purgesToProcess.stream().anyMatch(purgeToProcess ->
+                ack.getInputId() == purgeToProcess.inputId &&
+                ack.getSessionId().equalsIgnoreCase(purgeToProcess.sessionId)
+            )
+        );
     }
 
     public List<InputAcknowledgement> pollForAcks(int limit, long gameStateVersion) {
@@ -46,6 +62,15 @@ public class InputAcknowledgementManager {
         }
 
         return acksForSend.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    public void purgeInputs(List<InputPurgeRequest> purgeRequests, Session session) {
+        purgeRequests.forEach(inputPurgeRequest -> {
+            final InputPurge purge = new InputPurge();
+            purge.inputId = inputPurgeRequest.getId();
+            purge.sessionId = session.getId();
+            purgeQueue.add(purge);
+        });
     }
 
     /**
@@ -69,5 +94,10 @@ public class InputAcknowledgementManager {
             ackRenewalQueue.add(renewedAck);
         }
         return inputExists;
+    }
+
+    private static class InputPurge {
+        private String sessionId;
+        private long inputId;
     }
 }

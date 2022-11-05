@@ -1,6 +1,7 @@
 package com.andronikus.gameserver.engine;
 
 import com.andronikus.game.model.client.InputRequest;
+import com.andronikus.game.model.client.InputPurgeRequest;
 import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
@@ -375,7 +376,7 @@ public class ServerEngine {
         gameState.setInputAcknowledgements(new ArrayList<>(ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_GAMESTATE_LIMIT));
         gameState.getInputAcknowledgements().addAll(inputAckManager.pollForAcks(ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_GAMESTATE_LIMIT, gameState.getVersion()));
 
-        inputAckManager.purgeExpiredAcks(gameState.getVersion(), ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_LIFE_SPAN_TICKS);
+        inputAckManager.purgeExpiredAndRequestedAcks(gameState.getVersion(), ScalableBalanceConstants.INPUT_ACKNOWLEDGEMENT_LIFE_SPAN_TICKS);
         gameState.setVersion(gameState.getVersion() + 1);
     }
 
@@ -417,6 +418,10 @@ public class ServerEngine {
         inputSet.setSession(session);
         inputSet.setInputs(inputs);
         inputManager.addInput(inputSet);
+    }
+
+    public void purgeInputAcks(List<InputPurgeRequest> inputPurges, Session session) {
+        inputAckManager.purgeInputs(inputPurges, session);
     }
 
     /**

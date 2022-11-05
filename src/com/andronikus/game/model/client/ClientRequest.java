@@ -19,6 +19,11 @@ public class ClientRequest implements Serializable {
     private InputRequest inputCode2;
     private InputRequest inputCode3;
     private InputRequest inputCode4;
+    private InputPurgeRequest inputPurge0 = null;
+    private InputPurgeRequest inputPurge1 = null;
+    private InputPurgeRequest inputPurge2 = null;
+    private InputPurgeRequest inputPurge3 = null;
+    private InputPurgeRequest inputPurge4 = null;
     private String sessionToken;
     // TODO this will get you DDoSed
     private List<ClientCommand> clientCommands = new ArrayList<>();
