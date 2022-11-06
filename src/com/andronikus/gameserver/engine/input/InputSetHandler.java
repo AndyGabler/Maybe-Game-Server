@@ -3,11 +3,13 @@ package com.andronikus.gameserver.engine.input;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 import com.andronikus.gameserver.engine.ClientInputSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Handler for a {@link ClientInputSet} that mutates a {@link GameState} based on the input.
@@ -65,16 +67,16 @@ public class InputSetHandler {
         final Session session = inputSet.getSession();
         final Player player = playerForSession(gameState, session.getId());
 
-        final ArrayList<String> allInputCodes = new ArrayList<>(inputSet.getInputCodes());
-        inputSet.getInputCodes().forEach(input -> {
-            if (input != null && input.length() > 0) {
-                final String noParameterInput = inputCodeForFullInput(input);
+        final ArrayList<String> allInputCodes = inputSet.getInputs().stream().map(ClientInput::getCode).collect(Collectors.toCollection(ArrayList::new));
+        inputSet.getInputs().forEach(input -> {
+            if (input != null && input.getCode().length() > 0) {
+                final String noParameterInput = inputCodeForFullInput(input.getCode());
                 final IInputCodeHandler handler = handlerMap.get(noParameterInput);
 
                 if (handler != null) {
                     if (!handler.requiresPlayer() ||
                         (player != null && (!handler.playerMustBeAlive()) || !player.isDead())) {
-                        handler.handleInput(gameState, player, input, allInputCodes, session);
+                        handler.handleInput(gameState, player, input.getCode(), allInputCodes, session);
                     }
                 }
             }

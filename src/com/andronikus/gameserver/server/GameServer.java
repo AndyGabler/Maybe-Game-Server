@@ -7,6 +7,8 @@ import com.andronikus.gameserver.dhke.DhkeServlet;
 import com.andronikus.gameserver.engine.GameStateBytesWrapper;
 import com.andronikus.gameserver.engine.ServerEngine;
 import com.andronikus.game.model.client.ClientRequest;
+import com.andronikus.game.model.client.InputPurgeRequest;
+import com.andronikus.game.model.client.InputRequest;
 import com.andronikus.gameserver.engine.command.CommandEngineTransferQueue;
 import com.gabler.udpmanager.ResourceLock;
 import com.gabler.udpmanager.server.IUdpServerConfiguration;
@@ -150,13 +152,34 @@ public class GameServer implements IUdpServerConfiguration {
              request.getInputCode4() != null ||
              (request.getClientCommands() != null && !request.getClientCommands().isEmpty()))
         ) {
-            final ArrayList<String> inputCodes = new ArrayList<>();
-            inputCodes.add(request.getInputCode0());
-            inputCodes.add(request.getInputCode1());
-            inputCodes.add(request.getInputCode2());
-            inputCodes.add(request.getInputCode3());
-            inputCodes.add(request.getInputCode4());
-            engine.addInputs(inputCodes.stream().filter(Objects::nonNull).collect(Collectors.toList()), session);
+            final ArrayList<InputRequest> inputs = new ArrayList<>();
+            inputs.add(request.getInputCode0());
+            inputs.add(request.getInputCode1());
+            inputs.add(request.getInputCode2());
+            inputs.add(request.getInputCode3());
+            inputs.add(request.getInputCode4());
+            engine.addInputs(
+                inputs
+                    .stream()
+                    .filter(input -> input != null && input.getInputCode() != null)
+                    .collect(Collectors.toList()),
+                session
+            );
+
+            final ArrayList<InputPurgeRequest> purgeRequests = new ArrayList<>();
+            purgeRequests.add(request.getInputPurge0());
+            purgeRequests.add(request.getInputPurge1());
+            purgeRequests.add(request.getInputPurge2());
+            purgeRequests.add(request.getInputPurge3());
+            purgeRequests.add(request.getInputPurge4());
+            engine.purgeInputAcks(
+                purgeRequests
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList()) ,
+                session
+            );
+
             session.setLastRecordedSequenceNumber(request.getSequenceNumber());
 
             if (engine.isDebugMode()) {
