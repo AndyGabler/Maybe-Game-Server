@@ -11,6 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+/**
+ * Manager for input acknowledgements.
+ *
+ * @author Andronikus
+ */
 public class InputAcknowledgementManager {
 
     /*
@@ -23,12 +28,23 @@ public class InputAcknowledgementManager {
     private final ConcurrentLinkedQueue<InputPurge> purgeQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<InputAcknowledgement> ackRenewalQueue = new ConcurrentLinkedQueue<>();
 
+    /**
+     * Register an acknowledgement to be put on the next game state
+     *
+     * @param acknowledgement The acknowledgement
+     */
     public void registerAck(InputAcknowledgement acknowledgement) {
         ConcurrentHashMap<Long, Byte> cacheForSessionId = processedCache.computeIfAbsent(acknowledgement.getSessionId(), sessionId -> new ConcurrentHashMap<>());
         cacheForSessionId.put(acknowledgement.getInputId(), (byte) 0x01);
         acksForSend.add(acknowledgement);
     }
 
+    /**
+     * Purge acknowledgements for that have expired or those that have had a purge requested.
+     *
+     * @param gameStateVersion The version of the game
+     * @param retentionTicks The amount of ticks
+     */
     public void purgeExpiredAndRequestedAcks(long gameStateVersion, long retentionTicks) {
         acksForSend.removeIf(ack -> {
             final long ackAgeTicks = gameStateVersion - ack.getCreatedGameStateVersion();
@@ -49,6 +65,13 @@ public class InputAcknowledgementManager {
         );
     }
 
+    /**
+     * Poll for acknowledgements to send.
+     *
+     * @param limit The limit per send
+     * @param gameStateVersion The version of the game
+     * @return List of acknowledgements to send
+     */
     public List<InputAcknowledgement> pollForAcks(int limit, long gameStateVersion) {
         /*
          * It's okay if a duplicate gets put in the ack queue, this means cache was cleared and will be cleaned up on purge
@@ -64,6 +87,12 @@ public class InputAcknowledgementManager {
         return acksForSend.stream().limit(limit).collect(Collectors.toList());
     }
 
+    /**
+     * Purge inputs.
+     *
+     * @param purgeRequests Requests of which inputs to purge
+     * @param session The session requesting the purge
+     */
     public void purgeInputs(List<InputPurgeRequest> purgeRequests, Session session) {
         purgeRequests.forEach(inputPurgeRequest -> {
             final InputPurge purge = new InputPurge();

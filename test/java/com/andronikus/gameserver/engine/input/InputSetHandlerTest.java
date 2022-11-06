@@ -1,6 +1,7 @@
 package com.andronikus.gameserver.engine.input;
 
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 import com.andronikus.gameserver.engine.ClientInputSet;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
@@ -110,14 +111,15 @@ public class InputSetHandlerTest {
     /**
      * Test creation of an input set with a single input code.
      *
-     * @param input Input code
+     * @param inputCode Input code
      * @param session Session the input set came from
      * @return The input set to use in testing
      */
-    private ClientInputSet createSingleInputInputSet(String input, Session session) {
+    private ClientInputSet createSingleInputInputSet(String inputCode, Session session) {
         final ClientInputSet inputSet = new ClientInputSet();
         inputSet.setInputs(new ArrayList<>());
         inputSet.setSession(session);
+        final ClientInput input = new ClientInput(inputCode, false, -1);
         inputSet.getInputs().add(input);
         return inputSet;
     }

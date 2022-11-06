@@ -425,6 +425,11 @@ public class ServerEngine {
         inputManager.addInput(inputSet);
     }
 
+    /**
+     * Purge input acknowledgements by ID for a particular session.
+     * @param inputPurges The inputs to purge
+     * @param session The session to purge inputs from
+     */
     public void purgeInputAcks(List<InputPurgeRequest> inputPurges, Session session) {
         inputAckManager.purgeInputs(inputPurges, session);
     }
