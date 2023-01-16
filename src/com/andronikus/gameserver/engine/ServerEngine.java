@@ -450,11 +450,8 @@ public class ServerEngine {
             ScalableBalanceConstants.ASTEROID_ROTATIONAL_VELOCITY_MINIMUM, GameState::getAsteroids
         );
 
-        outOfBoundsSpawner.register(
-            Snake::new, 20, ScalableBalanceConstants.SNAKE_SPAWN_CHANCE, ScalableBalanceConstants.SNAKE_IDLE_SPEED,
-            ScalableBalanceConstants.SNAKE_IDLE_SPEED, 0, 0, GameState::getSnakes
-        );
-
+        /*
+        // Keeping around, incase registering an inbound spawner is needed
         inboundsObjectSpawner.register(
             MicroBlackHole::new, 10, ScalableBalanceConstants.BLACK_HOLE_SPAWN_CHANCE, ScalableBalanceConstants.BLACK_HOLE_ANGULAR_VELOCITY_MAXIMUM,
             ScalableBalanceConstants.BLACK_HOLE_ANGULAR_VELOCITY_MINIMUM, GameState::getBlackHoles
@@ -464,6 +461,7 @@ public class ServerEngine {
             Portal::new, 5, ScalableBalanceConstants.PORTAL_SPAWN_CHANCE,
             0, 0, GameState::getPortals
         );
+        */
     }
 
     /**

@@ -75,7 +75,7 @@ public class InputSetHandler {
 
                 if (handler != null) {
                     if (!handler.requiresPlayer() ||
-                        (player != null && (!handler.playerMustBeAlive()) || !player.isDead())) {
+                        (player != null && (!handler.playerMustBeAlive() || !player.isDead()))) {
                         handler.handleInput(gameState, player, input.getCode(), allInputCodes, session);
                     }
                 }

@@ -104,7 +104,7 @@ public class ScalableBalanceConstants {
     /*
      * Chance an asteroid will spawn on each tick.
      */
-    public static final double ASTEROID_SPAWN_CHANCE = 0.05;
+    public static final double ASTEROID_SPAWN_CHANCE = 0.005;
 
     /*
      * Asteroid rotational constants.
@@ -137,15 +137,6 @@ public class ScalableBalanceConstants {
      */
     public static final int SNAKE_HEALTH = 50;
 
-    /*
-     * Probability that a snake will spawn.
-     */
-    public static final double SNAKE_SPAWN_CHANCE = 1.0 / 200.0;
-
-    /*
-     * Speeds of a snake.
-     */
-    public static final int SNAKE_IDLE_SPEED = 15;
     public static final int SNAKE_CHASING_SPEED = 19;
 
     /*
@@ -170,17 +161,6 @@ public class ScalableBalanceConstants {
      * Size of black holes.
      */
     public static final int BLACK_HOLE_SIZE = 128;
-
-    /**
-     * Probability of a black hole spawning.
-     */
-    public static final double BLACK_HOLE_SPAWN_CHANCE = 1.00 / 350.0;
-
-    /*
-     * Black hole rotational velocity range.
-     */
-    public static final double BLACK_HOLE_ANGULAR_VELOCITY_MINIMUM = Math.PI / 90;
-    public static final double BLACK_HOLE_ANGULAR_VELOCITY_MAXIMUM = Math.PI / 30;
 
     /*
      * Values defining the effectiveness of black holes.
