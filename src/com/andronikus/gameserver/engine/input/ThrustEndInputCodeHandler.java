@@ -3,6 +3,7 @@ package com.andronikus.gameserver.engine.input;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class ThrustEndInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputCodes, Session session) {
+    public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputCodes, Session session) {
         player.setAcceleration(0);
         player.setThrusting(false);
     }

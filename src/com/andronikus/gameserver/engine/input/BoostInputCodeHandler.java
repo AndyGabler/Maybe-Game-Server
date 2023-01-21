@@ -3,6 +3,7 @@ package com.andronikus.gameserver.engine.input;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 
 import java.util.List;
 
@@ -17,8 +18,8 @@ public class BoostInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputs, Session session) {
-        if (allInputs.stream().anyMatch(input -> input.equals("BOOSTEND"))) {
+    public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputs, Session session) {
+        if (allInputs.stream().anyMatch(inputCode -> inputCode.equals("BOOSTEND"))) {
             player.setBoosting(false);
         } else {
             player.setBoosting(player.getSpeed() > 0 && player.getBoostingCharge() > 0);

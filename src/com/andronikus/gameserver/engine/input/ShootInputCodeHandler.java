@@ -4,6 +4,7 @@ import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Laser;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 import com.andronikus.gameserver.engine.ScalableBalanceConstants;
 
 import java.util.List;
@@ -19,19 +20,26 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputs, Session session) {
-        if (player.isBoosting() || player.getLaserCharges() <= 0 || player.getCollidedPortalId() != null) {
+    public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputs, Session session) {
+        if (
+            player.isBoosting() ||
+            player.getLaserCharges() <= 0 ||
+            player.getCollidedPortalId() != null ||
+            input.getParameters().size() == 0 ||
+            !(input.getParameters().get(0) instanceof Double)
+        ) {
             return;
         }
 
+        final double angle = (double) input.getParameters().get(0);
         final Laser laser = new Laser();
 
         laser.setX(player.getX());
         laser.setY(player.getY());
         laser.setLoyalty(player.getSessionId());
-        laser.setXVelocity((long)(Math.cos(player.getAngle()) * ScalableBalanceConstants.LASER_SPEED));
-        laser.setYVelocity((long)(Math.sin(player.getAngle()) * ScalableBalanceConstants.LASER_SPEED));
-        laser.setAngle(player.getAngle());
+        laser.setXVelocity((long)(Math.cos(angle) * ScalableBalanceConstants.LASER_SPEED));
+        laser.setYVelocity((long)(Math.sin(angle) * ScalableBalanceConstants.LASER_SPEED));
+        laser.setAngle(angle);
 
         final long id = state.getNextLaserId();
         state.setNextLaserId(id + 1);

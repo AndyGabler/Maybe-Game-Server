@@ -115,6 +115,18 @@ public class InputAcknowledgementManager {
             return false;
         }
 
+        /*
+         * TODO this is a bit hacky.
+         *   1. If input ID is null, clear the processed cache because it's a join game input
+         *   2. If input ID is -1, don't check for duplicates
+         */
+        if (inputRequest.getInputId() == null) {
+            processedCache.clear();
+            return false;
+        } else if (inputRequest.getInputId() == -1) {
+            return false;
+        }
+
         final boolean inputExists = inputCache.containsKey(inputRequest.getInputId());
         if (inputExists) {
             final InputAcknowledgement renewedAck = new InputAcknowledgement();

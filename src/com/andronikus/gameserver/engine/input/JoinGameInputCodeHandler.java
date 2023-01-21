@@ -3,6 +3,7 @@ package com.andronikus.gameserver.engine.input;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.Player;
 import com.andronikus.gameserver.auth.Session;
+import com.andronikus.gameserver.engine.ClientInput;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class JoinGameInputCodeHandler implements IInputCodeHandler {
      * {@inheritDoc}
      */
     @Override
-    public void handleInput(GameState state, Player player, String inputCode, List<String> allInputCodes, Session session) {
+    public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputCodes, Session session) {
         // Revalidate that there is no player (incase client multiple JOINGAME commands appeared in one client request)
         if (player == null && playerStillDoesNotExist(state, session.getId())) {
             final Player newPlayer = new Player();

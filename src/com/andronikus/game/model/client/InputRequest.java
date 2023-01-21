@@ -14,4 +14,8 @@ public class InputRequest implements Serializable {
     private String inputCode;
     private Long inputId;
     private boolean ackRequired;
+
+    // Parameters for inputs
+    // TODO serialization bomb vulnerability
+    private Serializable parameter0;
 }

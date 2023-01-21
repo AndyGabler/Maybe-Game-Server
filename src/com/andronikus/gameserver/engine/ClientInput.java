@@ -2,6 +2,9 @@ package com.andronikus.gameserver.engine;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Input from a client.
  *
@@ -12,6 +15,7 @@ public class ClientInput {
     private final String code;
     private final boolean ackRequired;
     private final long id;
+    private final List<Object> parameters = new ArrayList<>();
 
     /**
      * Create input from a client.
