@@ -25,6 +25,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
             player.isBoosting() ||
             player.getLaserCharges() <= 0 ||
             player.getCollidedPortalId() != null ||
+            (player.getLaserShotTime() > 0L && state.getVersion() - player.getLaserShotTime() < ScalableBalanceConstants.PLAYER_LASER_SHOT_COOL_DOWN_TICKS) ||
             input.getParameters().size() == 0 ||
             !(input.getParameters().get(0) instanceof Double)
         ) {
@@ -48,6 +49,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
         state.getLasers().add(laser);
         state.getCollideables().add(laser);
         player.setLaserCharges(player.getLaserCharges() - 1);
+        player.setLaserShotTime(state.getVersion());
     }
 
     /**

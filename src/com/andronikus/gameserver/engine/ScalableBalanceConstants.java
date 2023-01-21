@@ -68,7 +68,8 @@ public class ScalableBalanceConstants {
     /*
      * Throttles on how many lasers a player can fire at a time.
      */
-    public static final int PLAYER_LASER_CHARGES = 8;
+    public static final int PLAYER_LASER_CHARGES = 100;
+    public static final int PLAYER_LASER_SHOT_COOL_DOWN_TICKS = 7;
     public static final int PLAYER_LASER_RECHARGE_THRESHOLD = 750;
     public static final int PLAYER_LASER_RECHARGE_RATE = 26;
 
