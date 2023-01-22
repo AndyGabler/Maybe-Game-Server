@@ -81,8 +81,8 @@ public class ScalableBalanceConstants {
     /*
      * Laser sizes.
      */
-    public static final int LASER_WIDTH = 48;
-    public static final int LASER_HEIGHT = 32;
+    public static final int LASER_WIDTH = 16;
+    public static final int LASER_HEIGHT = 50;
 
     /*
      * Laser damage.
