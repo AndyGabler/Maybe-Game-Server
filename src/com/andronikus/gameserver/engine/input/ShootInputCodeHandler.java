@@ -38,8 +38,8 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
         laser.setX(player.getX());
         laser.setY(player.getY());
         laser.setLoyalty(player.getSessionId());
-        laser.setXVelocity((long)(Math.cos(angle) * ScalableBalanceConstants.LASER_SPEED));
-        laser.setYVelocity((long)(Math.sin(angle) * ScalableBalanceConstants.LASER_SPEED));
+        laser.setXVelocity((long)(Math.cos(angle) * ScalableBalanceConstants.LASER_SPEED) + player.getXVelocity());
+        laser.setYVelocity((long)(Math.sin(angle) * ScalableBalanceConstants.LASER_SPEED) + player.getYVelocity());
         laser.setAngle(angle);
 
         final long id = state.getNextLaserId();
