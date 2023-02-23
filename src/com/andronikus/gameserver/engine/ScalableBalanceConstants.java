@@ -76,7 +76,7 @@ public class ScalableBalanceConstants {
     /*
      * Speed of a laser as it leaves a ship.
      */
-    public static final long LASER_SPEED = 59;
+    public static final long LASER_SPEED = 31;
 
     /*
      * Laser sizes.
