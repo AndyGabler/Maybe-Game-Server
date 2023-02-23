@@ -45,6 +45,7 @@ public class Player implements IMoveable {
     private int laserCharges = ScalableBalanceConstants.PLAYER_LASER_CHARGES;
     private int laserRecharge = 0;
     private long laserShotTime = -10000L; // TODO if cool down is ever this long that's bad
+    private Double laserShotAngle = null;
 
     private PlayerColor color = null;
 

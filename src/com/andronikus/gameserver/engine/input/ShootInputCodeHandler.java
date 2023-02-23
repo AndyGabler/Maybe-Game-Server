@@ -50,6 +50,7 @@ public class ShootInputCodeHandler implements IInputCodeHandler {
         state.getCollideables().add(laser);
         player.setLaserCharges(player.getLaserCharges() - 1);
         player.setLaserShotTime(state.getVersion());
+        player.setLaserShotAngle(angle);
     }
 
     /**
