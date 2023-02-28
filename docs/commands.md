@@ -154,13 +154,13 @@ Spawn a Moveable object into the game.
 
 **Keyword:** SPAWN
 
-| Parameter Index | Parameter Usage                                   | Value Range                                                          | Required |
-|-----------------|---------------------------------------------------|----------------------------------------------------------------------|----------|
-| 0               | The listing of Moveables to spawn something into  | "ASTEROID", "LASER", "BLACKHOLE",<br/>"PORTAL", or "SNAKE"           | Yes      |
-| 1               | The X Position                                    | Integer                                                              | Yes      |
-| 2               | The Y Position                                    | Integer                                                              | Yes      |
-| 3               | The X Velocity                                    | Integer                                                              | No       |
-| 4               | The Y Velocity                                    | Integer                                                              | No       |
-| 5               | Position Type                                     | "A" or "R" ("R" is default)                                          | No       |
-| 6               | Relative Spawn Entity Target Type                 | "ASTEROID", "LASER", "BLACKHOLE",<br/>"PLAYER", "PORTAL", or "SNAKE" | No       |
-| 7               | Relative Spawn Entity Target ID                   | Non-Negative Integer                                                 | No       |
+| Parameter Index | Parameter Usage                                   | Value Range                                                             | Required |
+|-----------------|---------------------------------------------------|-------------------------------------------------------------------------|----------|
+| 0               | The listing of Moveables to spawn something into  | "ASTEROID0", "ASTEROID1" "LASER", "BLACKHOLE",<br/>"PORTAL", or "SNAKE" | Yes      |
+| 1               | The X Position                                    | Integer                                                                 | Yes      |
+| 2               | The Y Position                                    | Integer                                                                 | Yes      |
+| 3               | The X Velocity                                    | Integer                                                                 | No       |
+| 4               | The Y Velocity                                    | Integer                                                                 | No       |
+| 5               | Position Type                                     | "A" or "R" ("R" is default)                                             | No       |
+| 6               | Relative Spawn Entity Target Type                 | "ASTEROID", "LASER", "BLACKHOLE",<br/>"PLAYER", "PORTAL", or "SNAKE"    | No       |
+| 7               | Relative Spawn Entity Target ID                   | Non-Negative Integer                                                    | No       |
