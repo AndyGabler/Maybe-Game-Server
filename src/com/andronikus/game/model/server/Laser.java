@@ -17,7 +17,7 @@ public class Laser implements IMoveable {
     private long yVelocity;
     private String loyalty;
     private long id;
-    private boolean active = true;
+    private Long deactivatedTime = null;
     private double angle;
 
     /**

@@ -137,8 +137,10 @@ public class ServerEngine {
 
         // Get rid of lasers if they are beyond the border and will not impact anything
         gameState.getLasers().removeIf(laser -> {
-            boolean willRemove = laser.getX() < -2000 || laser.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 2000 ||
-            laser.getY() < -2000 || laser.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 2000;
+            boolean outOfBounds = laser.getX() < -2000 || laser.getX() > ScalableBalanceConstants.BORDER_X_COORDINATE + 2000 ||
+                laser.getY() < -2000 || laser.getY() > ScalableBalanceConstants.BORDER_Y_COORDINATE + 2000;
+            boolean deactivatedForOneSecond = laser.getDeactivatedTime() != null && laser.getDeactivatedTime() + ScalableBalanceConstants.DEFAULT_TPS < gameState.getVersion();
+            boolean willRemove = outOfBounds || deactivatedForOneSecond;
 
             if (willRemove) {
                 gameState.getCollideables().remove(laser);
