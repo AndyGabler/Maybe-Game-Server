@@ -6,10 +6,7 @@ import com.andronikus.game.model.server.Asteroid;
 import com.andronikus.game.model.server.BoundingBoxBorder;
 import com.andronikus.game.model.server.GameState;
 import com.andronikus.game.model.server.IMoveable;
-import com.andronikus.game.model.server.MicroBlackHole;
 import com.andronikus.game.model.server.Player;
-import com.andronikus.game.model.server.Portal;
-import com.andronikus.game.model.server.Snake;
 import com.andronikus.game.model.server.debug.ServerDebugSettings;
 import com.andronikus.game.model.server.input.InputAcknowledgement;
 import com.andronikus.gameserver.engine.asteroid.AsteroidSplitter;
@@ -194,15 +191,17 @@ public class ServerEngine {
             }
 
             // Give player their lasers back
-            if (player.getLaserCharges() < ScalableBalanceConstants.PLAYER_LASER_CHARGES) {
-                player.setLaserRecharge(player.getLaserRecharge() + ScalableBalanceConstants.PLAYER_LASER_RECHARGE_RATE);
-                if (player.getLaserRecharge() >= ScalableBalanceConstants.PLAYER_LASER_RECHARGE_THRESHOLD) {
-                    player.setLaserRecharge(0);
-                    player.setLaserCharges(player.getLaserCharges() + 1);
+            if (player.getTurretHeat() >= ScalableBalanceConstants.PLAYER_LASER_MAX_HEAT) {
+                // If heat is over the maximum, increment the cooldown, then when the cooldown reaches the max, heat resets to 0
+                player.setTurretCoolDown(player.getTurretCoolDown() + ScalableBalanceConstants.PLAYER_LASER_COOL_DOWN_RATE);
+                if (player.getTurretCoolDown() >= ScalableBalanceConstants.PLAYER_LASER_MAX_HEAT) {
+                    player.setTurretHeat(0);
+                    player.setTurretCoolDown(0);
                 }
-            } else {
-                // Set to 0 on the off-chance powerups that give this back is implemented
-                player.setLaserRecharge(0);
+            } else if (player.getTurretHeat() > 0) {
+                // If heat is under the maximum, cooldown at a constant rate
+                final int newTurretHeat = player.getTurretHeat() - ScalableBalanceConstants.PLAYER_LASER_HEAT_LOSS_RATE;
+                player.setTurretHeat(Math.max(newTurretHeat, 0));
             }
         });
 
@@ -481,8 +480,8 @@ public class ServerEngine {
         player.setHealth(ScalableBalanceConstants.PLAYER_HEALTH);
         player.setBoostingCharge(ScalableBalanceConstants.BOOSTING_CHARGE);
         player.setBoostingRecharge(0);
-        player.setLaserRecharge(0);
-        player.setLaserCharges(ScalableBalanceConstants.PLAYER_LASER_CHARGES);
+        player.setTurretCoolDown(0);
+        player.setTurretHeat(0);
         player.setSpeed(0);
         player.setShieldCount(ScalableBalanceConstants.PLAYER_SHIELD_COUNT);
         player.setShieldRecharge(ScalableBalanceConstants.SHIELD_RECHARGE_CAP);

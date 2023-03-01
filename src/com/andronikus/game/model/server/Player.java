@@ -42,8 +42,8 @@ public class Player implements IMoveable {
     private int shieldRecharge = 0;
     private boolean shieldLostThisTick = false;
 
-    private int laserCharges = ScalableBalanceConstants.PLAYER_LASER_CHARGES;
-    private int laserRecharge = 0;
+    private int turretHeat = 0;
+    private int turretCoolDown = 0;
     private long laserShotTime = -10000L; // TODO if cool down is ever this long that's bad
     private Double laserShotAngle = null;
 
