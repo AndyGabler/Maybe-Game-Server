@@ -71,7 +71,7 @@ public class ScalableBalanceConstants {
     public static final int PLAYER_LASER_MAX_HEAT = 1000;
     public static final int PLAYER_HEAT_INCREMENT = 230;
     public static final int PLAYER_LASER_HEAT_LOSS_RATE = 1;
-    public static final int PLAYER_LASER_COOL_DOWN_RATE = 17;
+    public static final int PLAYER_LASER_COOL_DOWN_RATE = 12;
     public static final double PLAYER_LASER_HEAT_CHANCE = 0.2;
     public static final int PLAYER_LASER_SHOT_INTERVAL_TICKS = 7;
 
