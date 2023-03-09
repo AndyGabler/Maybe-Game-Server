@@ -16,29 +16,24 @@ public class ScalableBalanceConstants {
     /*
      * When player is thrusting, these are the accelerations.
      */
-    public static final long REVERSE_THRUST_ACCELERATION = -1;
     public static final long THRUST_ACCELERATION = 1;
-
-    /*
-     * Acceleration for when breaking.
-     */
-    public static final long BREAKING_THRUSTER_ACCELERATION = -1;
+    public static final long PLAYER_DEFAULT_DECELERATION = -2;
 
     /*
      * Constants for modifiers when boosting.
      */
-    public static final long BOOSTING_MAX_PLAYER_SPEED = 38;
-    public static final long BOOSTING_PLAYER_ACCELERATION = 3;
-    public static final int BOOSTING_CHARGE = 200;
+    public static final long BOOSTING_MAX_PLAYER_SPEED = 53;
+    public static final long BOOSTING_PLAYER_ACCELERATION = 8;
+    public static final int BOOSTING_CHARGE = 263;
     public static final int BOOSTING_BURN_RATE = 3;
-    public static final int BOOSTING_RECHARGE_RATE = 5;
+    public static final int BOOSTING_RECHARGE_RATE = 4;
 
 
     /*
      * Speed limits for players.
      */
-    public static final long MAX_PLAYER_SPEED = 18;
-    public static final long MIN_PLAYER_SPEED = -7;
+    public static final long MAX_PLAYER_SPEED = 22;
+    public static final long MIN_PLAYER_SPEED = 0;
 
     /*
      * Size of the player.
@@ -78,7 +73,7 @@ public class ScalableBalanceConstants {
     /*
      * Speed of a laser as it leaves a ship.
      */
-    public static final long LASER_SPEED = 44;
+    public static final long LASER_SPEED = 54;
 
     /*
      * Laser sizes.

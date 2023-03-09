@@ -19,7 +19,6 @@ public class ThrustEndInputCodeHandler implements IInputCodeHandler {
      */
     @Override
     public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputCodes, Session session) {
-        player.setAcceleration(0);
         player.setThrusting(false);
     }
 

@@ -20,7 +20,6 @@ public class ThrustInputCodeHandler implements IInputCodeHandler {
      */
     @Override
     public void handleInput(GameState state, Player player, ClientInput input, List<String> allInputCodes, Session session) {
-        player.setAcceleration(ScalableBalanceConstants.THRUST_ACCELERATION);
         player.setThrusting(true);
     }
 

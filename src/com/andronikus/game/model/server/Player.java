@@ -26,7 +26,7 @@ public class Player implements IMoveable {
     private long externalYAcceleration = 0;
 
     private long speed = 0;
-    private long acceleration = 0;
+    private boolean thrusting = false;
 
     private boolean boosting = false;
     private int boostingCharge = ScalableBalanceConstants.BOOSTING_CHARGE;
@@ -48,8 +48,6 @@ public class Player implements IMoveable {
     private Double laserShotAngle = null;
 
     private PlayerColor color = null;
-
-    private boolean thrusting = false;
 
     private int venom = 0;
 

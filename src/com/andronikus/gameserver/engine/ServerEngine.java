@@ -151,10 +151,6 @@ public class ServerEngine {
         gameState.getPlayers().forEach(player -> {
             player.setRotationalVelocity(0);
 
-            if (player.getAcceleration() < 0) {
-                player.setAcceleration(0);
-            }
-
             player.setExternalXAcceleration(0);
             player.setExternalYAcceleration(0);
 
@@ -254,13 +250,18 @@ public class ServerEngine {
 
             // Adjust the max speed and acceleration based on if boost is being used
             long maxSpeed = ScalableBalanceConstants.MAX_PLAYER_SPEED;
+            long playerAcceleration = 0L;
             if (player.isBoosting() && player.getSpeed() > 0) {
                 maxSpeed = ScalableBalanceConstants.BOOSTING_MAX_PLAYER_SPEED;
-                player.setAcceleration(ScalableBalanceConstants.BOOSTING_PLAYER_ACCELERATION);
+                playerAcceleration = ScalableBalanceConstants.BOOSTING_PLAYER_ACCELERATION;
+            } else if (player.isThrusting()) {
+                playerAcceleration = ScalableBalanceConstants.THRUST_ACCELERATION;
+            } else {
+                playerAcceleration = ScalableBalanceConstants.PLAYER_DEFAULT_DECELERATION;
             }
 
             // Add acceleration to the character speed
-            player.setSpeed(player.getSpeed() + player.getAcceleration());
+            player.setSpeed(player.getSpeed() + playerAcceleration);
 
             // Set a speed cap on the player
             if (player.getSpeed() > maxSpeed) {

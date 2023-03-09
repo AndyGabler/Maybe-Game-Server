@@ -47,12 +47,10 @@ public class InputSetHandler {
         handler.put("JOINGAME", new JoinGameInputCodeHandler());
         handler.put("THRUST", new ThrustInputCodeHandler());
         handler.put("THRUSTEND", new ThrustEndInputCodeHandler());
-        handler.put("RTHRUST", new ReverseThrustInputCodeHandler());
         handler.put("LROTATE", new LeftRotateInputCodeHandler());
         handler.put("RROTATE", new RightRotateInputCodeHandler());
         handler.put("BOOST", new BoostInputCodeHandler());
         handler.put("BOOSTEND", new BoostInputCodeHandler());
-        handler.put("BREAK", new BreakInputCodeHandler());
         handler.put("SHOOT", new ShootInputCodeHandler());
         return handler;
     }
